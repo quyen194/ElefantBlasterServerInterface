@@ -21,8 +21,11 @@
 // -----------------------------------------------------------------------------
 #include <wx/wx.h>
 
+#include <spdlog/spdlog.h>
+
 #include <aries_base/definitions/macro.hpp>
 
+#include "common/settings_manager.hpp"
 #include "ui/main_frame.hpp"
 // -----------------------------------------------------------------------------
 
@@ -39,6 +42,10 @@ class ProcessControl : public wxApp {
 
  private:
   MainFrame* main_frame_;
+
+ private:
+  SettingsManager* settings_;
+  std::shared_ptr<spdlog::logger> logger_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ProcessControl);

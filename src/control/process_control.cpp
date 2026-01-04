@@ -21,7 +21,6 @@
 
 // -----------------------------------------------------------------------------
 using namespace aries_base::common;
-using namespace common;
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
@@ -38,6 +37,12 @@ bool ProcessControl::OnInit() {
   // Initialize global logger manager
   LoggerManager::CreateInstance();
 
+  // Initialize settings manager
+  SettingsManager::CreateInstance();
+
+  settings_ = SettingsManager::Instance();
+  logger_ = settings_->GetLogger("app", "ProcessControl", true);
+
   main_frame_ = new MainFrame();
   main_frame_->Show(true);
 
@@ -49,6 +54,9 @@ int ProcessControl::OnExit() {
   if (main_frame_) {
     main_frame_ = nullptr;
   }
+
+  // Clean up SettingsManager
+  SettingsManager::DestroyInstance();
 
   // Clean up LoggerManager
   LoggerManager::DestroyInstance();
