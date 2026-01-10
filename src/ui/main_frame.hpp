@@ -19,10 +19,11 @@
 
 
 // -----------------------------------------------------------------------------
-#include <wx/notebook.h>
 #include <wx/wx.h>
 
 #include <aries_base/definitions/macro.hpp>
+
+#include "ui/tab_user_manage.hpp"
 // -----------------------------------------------------------------------------
 
 
@@ -38,9 +39,17 @@ class MainFrame : public wxFrame {
   void OnAbout(wxCommandEvent& event);
 
  private:
+  void OnUsersSetGridData(wxThreadEvent& event);
+
+ private:
+  TabUserManage* tab_user_manage_;
+
+ private:
   wxMenuBar* menu_bar_;
   wxMenu* menu_files_;
   wxMenu* menu_help_;
+
+  wxStatusBar* status_bar_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MainFrame);

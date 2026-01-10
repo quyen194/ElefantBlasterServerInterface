@@ -27,6 +27,7 @@
 
 #include "common/settings_manager.hpp"
 #include "network/admin_client.hpp"
+#include "ui/login_frame.hpp"
 #include "ui/main_frame.hpp"
 // -----------------------------------------------------------------------------
 
@@ -42,7 +43,14 @@ class ProcessControl : public wxApp {
   virtual int OnExit() override;
 
  private:
-  AdminClient admin_client_;
+  void OnNetConnected(wxThreadEvent& event);
+  void OnNetReconnect(wxThreadEvent& event);
+  void OnLoginSubmit(wxThreadEvent& event);
+  void OnUiTabChanged(wxThreadEvent& event);
+
+ private:
+  AdminClient* admin_client_;
+  LoginFrame* login_frame_;
   MainFrame* main_frame_;
 
  private:

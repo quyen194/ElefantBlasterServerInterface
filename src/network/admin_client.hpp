@@ -28,12 +28,17 @@
 #include <websocketpp/client.hpp>
 
 #include <aries_base/definitions/macro.hpp>
+#include <aries_base/process/event/event.hpp>
 
 #include "common/settings_manager.hpp"
+#include "ui/main_frame.hpp"
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
+using namespace aries_base::process;
+// -----------------------------------------------------------------------------
+typedef websocketpp::client<websocketpp::config::asio_tls_client>::message_ptr message_ptr;
 typedef websocketpp::connection_hdl connection_hdl;
 typedef websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context> context_ptr;
 typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
@@ -43,22 +48,40 @@ typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 
 class AdminClient {
  public:
-  AdminClient();
+  AdminClient(MainFrame *main_frame);
   virtual ~AdminClient();
 
-  void LoadSettings();
+  bool LoadConfig();
+
+  bool Start();
+  void Stop();
 
   bool Connect();
   void Disconnect();
+  bool IsConnected();
+
+ private:
+  context_ptr OnTlsInit(connection_hdl hdl);
+  void OnConnected(connection_hdl hdl);
+  void OnDisconnected(connection_hdl hdl);
+  void OnError(connection_hdl hdl);
+  void OnMessage(connection_hdl hdl, message_ptr msg);
+
+ private:
+  void Worker();
 
  private:
   client client_;
+  std::string uri_;
 
-  std::string host_;
-  int port_;
+  connection_hdl hdl_;
+  bool connected_;
+
+  Event worker_end_event_;
 
  private:
   SettingsManager* settings_;
+  MainFrame *main_frame_;
   std::shared_ptr<spdlog::logger> logger_;
 
  private:

@@ -34,7 +34,15 @@ class TabUsers : public wxPanel {
   TabUsers(wxWindow* parent);
   virtual ~TabUsers();
 
+  inline wxGrid* GetGrid() { return grid_; }
+
+  void SelectTab();
+
  private:
+  wxTextCtrl *txt_filter_name_;
+  wxCheckBox *chk_filter_online_;
+  wxCheckBox *chk_filter_banned_;
+  wxButton *btn_filter_apply_;
   wxGrid *grid_;
 
  private:

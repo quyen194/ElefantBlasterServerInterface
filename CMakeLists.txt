@@ -119,6 +119,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(wxWidgets)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE wx::core wx::base)
 
+# ElefantBlasterProtocols
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE ElefantBlasterProtocols)
+
 # ===================================================================
 # ASSET & RESOURCE HANDLING – FULLY AUTOMATIC FOR YOUR BOMBERMAN PROJECT
 # Supports: Windows | Linux | macOS | iOS | Android | Web (Emscripten)

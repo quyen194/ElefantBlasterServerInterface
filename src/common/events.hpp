@@ -5,53 +5,38 @@
   author:    quyen19492
   email:     quyen19492@gmail.com
 
-  created:   2026/01/02 15:40
-  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/tab_user_manage.hpp
+  created:   2026/01/04 15:41
+  filename:  ElefantBlaster/ElefantBlasterServerInterface/common/events.hpp
 
   purpose:
 *********************************************************************/
 
 
 // -----------------------------------------------------------------------------
-#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
-#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
+#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_COMMON_EVENTS_HPP
+#define ELEFANT_BLASTER_SERVER_INTERFACE_COMMON_EVENTS_HPP
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
-#include <map>
-
 #include <wx/wx.h>
-
-#include <aries_base/definitions/macro.hpp>
-
-#include "ui/ui_definitions.hpp"
-#include "ui/user_manage/tab_users.hpp"
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
-
-class TabUserManage : public wxPanel {
- public:
-  TabUserManage(wxWindow* parent);
-  virtual ~TabUserManage();
-
-  inline TabUsers* GetTabUsers() { return tab_users_; }
-
- private:
-  void OnNotebookPageChanged(wxBookCtrlEvent& event);
-
- private:
-  TabUsers *tab_users_;
-
-  std::map<int, TabIndex> tab_ids_;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(TabUserManage);
+wxDECLARE_EVENT(EVT_NET_CONNECTED, wxThreadEvent);
+wxDECLARE_EVENT(EVT_NET_RECONNECT, wxThreadEvent);
+// -----------------------------------------------------------------------------
+struct LoginSubmitParams {
+  std::string username;
+  std::string password;
 };
+wxDECLARE_EVENT(EVT_UI_LOGIN_SUBMIT, wxThreadEvent);
+// -----------------------------------------------------------------------------
+wxDECLARE_EVENT(EVT_UI_TAB_CHANGED, wxThreadEvent);
+wxDECLARE_EVENT(EVT_SERVER_UPDATE, wxThreadEvent);
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
+#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_COMMON_EVENTS_HPP
 // -----------------------------------------------------------------------------

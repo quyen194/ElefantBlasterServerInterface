@@ -13,8 +13,9 @@
 
 
 // -----------------------------------------------------------------------------
+#include <wx/notebook.h>
+
 #include "ui/main_frame.hpp"
-#include "ui/tab_user_manage.hpp"
 // -----------------------------------------------------------------------------
 
 
@@ -38,13 +39,21 @@ MainFrame::MainFrame()
   Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
   Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
 
+  status_bar_ = CreateStatusBar(2);
+  int widths[2] = { -1, 200 };
+  status_bar_->SetStatusWidths(2, widths);
+  status_bar_->SetStatusText("Not connected", 1);
+
   auto notebook = new wxNotebook(this, wxID_ANY);
 
-  notebook->AddPage(new TabUserManage(notebook), "User Management");
+  tab_user_manage_ = new TabUserManage(notebook);
+
+  notebook->AddPage(tab_user_manage_, "User Management");
 
   auto sizer = new wxBoxSizer(wxVERTICAL);
-  sizer->Add(notebook, 1, wxEXPAND | wxALL);
+  sizer->Add(notebook, 1, wxEXPAND);
   SetSizer(sizer);
+  Layout();
 }
 // -----------------------------------------------------------------------------
 
@@ -65,4 +74,7 @@ void MainFrame::OnAbout(wxCommandEvent& event) {
                L"About",
                wxOK | wxICON_INFORMATION, this);
 }
+// -----------------------------------------------------------------------------
+
+void MainFrame::OnUsersSetGridData(wxThreadEvent& event) {}
 // -----------------------------------------------------------------------------

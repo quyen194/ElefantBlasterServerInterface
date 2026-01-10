@@ -5,53 +5,54 @@
   author:    quyen19492
   email:     quyen19492@gmail.com
 
-  created:   2026/01/02 15:40
-  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/tab_user_manage.hpp
+  created:   2026/01/08 10:57
+  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/login_frame.hpp
 
   purpose:
 *********************************************************************/
 
 
 // -----------------------------------------------------------------------------
-#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
-#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
+#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_LOGIN_FRAME_HPP
+#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_LOGIN_FRAME_HPP
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
-#include <map>
-
 #include <wx/wx.h>
 
 #include <aries_base/definitions/macro.hpp>
-
-#include "ui/ui_definitions.hpp"
-#include "ui/user_manage/tab_users.hpp"
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
 
-class TabUserManage : public wxPanel {
+class LoginFrame : public wxFrame {
  public:
-  TabUserManage(wxWindow* parent);
-  virtual ~TabUserManage();
+  LoginFrame();
+  virtual ~LoginFrame();
 
-  inline TabUsers* GetTabUsers() { return tab_users_; }
-
- private:
-  void OnNotebookPageChanged(wxBookCtrlEvent& event);
+  void SetStatusConnected();
+  void SetStatusReconnecting();
 
  private:
-  TabUsers *tab_users_;
-
-  std::map<int, TabIndex> tab_ids_;
+ void OnSubmit(wxCommandEvent& event);
+ void OnExit(wxCommandEvent& event);
+ void OnClose(wxCloseEvent& event);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(TabUserManage);
+  wxTextCtrl *txt_username_;
+  wxTextCtrl *txt_password_;
+  wxButton *btn_submit_;
+  wxButton *btn_exit_;
+
+  wxStatusBar* status_bar_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(LoginFrame);
 };
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
+#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_LOGIN_FRAME_HPP
 // -----------------------------------------------------------------------------

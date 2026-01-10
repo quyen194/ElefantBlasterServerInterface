@@ -15,6 +15,8 @@
 // -----------------------------------------------------------------------------
 #include <aries_base/logger/logger_manager.hpp>
 
+#include "common/events.hpp"
+#include "ui/ui_definitions.hpp"
 #include "control/process_control.hpp"
 // -----------------------------------------------------------------------------
 
@@ -43,17 +45,33 @@ bool ProcessControl::OnInit() {
   settings_ = SettingsManager::Instance();
   logger_ = settings_->GetLogger("app", "ProcessControl", true);
 
-  main_frame_ = new MainFrame();
-  main_frame_->Show(true);
+  Bind(EVT_NET_CONNECTED, &ProcessControl::OnNetConnected, this);
+  Bind(EVT_NET_RECONNECT, &ProcessControl::OnNetReconnect, this);
+  Bind(EVT_UI_LOGIN_SUBMIT, &ProcessControl::OnLoginSubmit, this);
+  Bind(EVT_UI_TAB_CHANGED, &ProcessControl::OnUiTabChanged, this);
+
+  login_frame_ = new LoginFrame();
+
+  admin_client_ = new AdminClient(main_frame_);
+  admin_client_->Start();
+  admin_client_->Connect();
+
+  login_frame_->Show(true);
 
   return true;
 }
 // -----------------------------------------------------------------------------
 
 int ProcessControl::OnExit() {
+  if (login_frame_) {
+    login_frame_ = nullptr;
+  }
+
   if (main_frame_) {
     main_frame_ = nullptr;
   }
+
+  admin_client_->Stop();
 
   // Clean up SettingsManager
   SettingsManager::DestroyInstance();
@@ -62,5 +80,35 @@ int ProcessControl::OnExit() {
   LoggerManager::DestroyInstance();
 
   return wxApp::OnExit();
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnNetConnected(wxThreadEvent & event) {
+  if (login_frame_->IsShown()) {
+    login_frame_->SetStatusConnected();
+  }
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnNetReconnect(wxThreadEvent& event) {
+  if (login_frame_->IsShown()) {
+    login_frame_->SetStatusReconnecting();
+  }
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnLoginSubmit(wxThreadEvent& event) {
+  LoginSubmitParams params = event.GetPayload<LoginSubmitParams>();
+  while (!admin_client_->IsConnected()) {
+
+  }
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnUiTabChanged(wxThreadEvent& event) {
+  switch (event.GetInt()) {
+    case TabIndex::kUserManage_Users:
+      break;
+  }
 }
 // -----------------------------------------------------------------------------
