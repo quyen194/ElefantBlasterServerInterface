@@ -5,55 +5,67 @@
   author:    quyen19492
   email:     quyen19492@gmail.com
 
-  created:   2025/12/18 18:42
-  filename:  ElefantBlaster/ElefantBlasterServerInterface/control/process_control.hpp
+  created:   2025/12/19 08:24
+  filename:  ElefantBlaster/ElefantBlasterServerInterface/network/net_client.hpp
 
-  purpose:   Header file for the main application class
+  purpose:   Network interface for admin client
 *********************************************************************/
 
 
 // -----------------------------------------------------------------------------
-#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_CONTROL_PROCESS_CONTROL_HPP
-#define ELEFANT_BLASTER_SERVER_INTERFACE_CONTROL_PROCESS_CONTROL_HPP
+#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_NETWORK_NET_CLIENT_HPP
+#define ELEFANT_BLASTER_SERVER_INTERFACE_NETWORK_NET_CLIENT_HPP
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
-#include <wx/wx.h>
+#include <cstdint>
+#include <string>
 
 #include <spdlog/spdlog.h>
+
+#include <websocketpp/config/asio_client.hpp>
+#include <websocketpp/client.hpp>
 
 #include <aries_base/definitions/macro.hpp>
 
 #include "common/settings_manager.hpp"
-#include "network/admin_client.hpp"
-#include "ui/main_frame.hpp"
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
+typedef websocketpp::connection_hdl connection_hdl;
+typedef websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context> context_ptr;
+typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
+// -----------------------------------------------------------------------------
 
-class ProcessControl : public wxApp {
+// -----------------------------------------------------------------------------
+
+class AdminClient {
  public:
-  ProcessControl();
-  virtual ~ProcessControl();
+  AdminClient();
+  virtual ~AdminClient();
 
-  virtual bool OnInit() override;
-  virtual int OnExit() override;
+  void LoadSettings();
+
+  bool Connect();
+  void Disconnect();
 
  private:
-  AdminClient admin_client_;
-  MainFrame* main_frame_;
+  client client_;
+
+  std::string host_;
+  int port_;
 
  private:
   SettingsManager* settings_;
   std::shared_ptr<spdlog::logger> logger_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ProcessControl);
+  DISALLOW_COPY_AND_ASSIGN(AdminClient);
 };
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_CONTROL_PROCESS_CONTROL_HPP
+#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_NETWORK_NET_CLIENT_HPP
 // -----------------------------------------------------------------------------

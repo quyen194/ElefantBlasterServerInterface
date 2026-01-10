@@ -5,55 +5,47 @@
   author:    quyen19492
   email:     quyen19492@gmail.com
 
-  created:   2025/12/18 18:42
-  filename:  ElefantBlaster/ElefantBlasterServerInterface/control/process_control.hpp
+  created:   2025/12/19 08:25
+  filename:  ElefantBlaster/ElefantBlasterServerInterface/network/net_client.cpp
 
-  purpose:   Header file for the main application class
+  purpose:
 *********************************************************************/
 
 
 // -----------------------------------------------------------------------------
-#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_CONTROL_PROCESS_CONTROL_HPP
-#define ELEFANT_BLASTER_SERVER_INTERFACE_CONTROL_PROCESS_CONTROL_HPP
-// -----------------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-#include <wx/wx.h>
-
-#include <spdlog/spdlog.h>
-
-#include <aries_base/definitions/macro.hpp>
-
-#include "common/settings_manager.hpp"
 #include "network/admin_client.hpp"
-#include "ui/main_frame.hpp"
+#include "admin_client.hpp"
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
 
-class ProcessControl : public wxApp {
- public:
-  ProcessControl();
-  virtual ~ProcessControl();
-
-  virtual bool OnInit() override;
-  virtual int OnExit() override;
-
- private:
-  AdminClient admin_client_;
-  MainFrame* main_frame_;
-
- private:
-  SettingsManager* settings_;
-  std::shared_ptr<spdlog::logger> logger_;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(ProcessControl);
-};
+AdminClient::AdminClient() : settings_(SettingsManager::Instance()) {
+  logger_ = settings_->GetLogger("network", "AdminClient", true);
+}
 // -----------------------------------------------------------------------------
 
+AdminClient::~AdminClient() {
+}
 // -----------------------------------------------------------------------------
-#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_CONTROL_PROCESS_CONTROL_HPP
+
+void AdminClient::LoadSettings() {
+  settings_->SetCurrentConfig(SettingsManager::kSettingClient);
+  host_ = settings_->GetNested<std::string>("/admin_server/host", "localhost");
+  port_ = settings_->GetNested<int>("/admin_server/port", 9003);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::Connect() {
+  // Implementation for connecting to the admin server
+  client_.init_asio();
+  client_.start_perpetual();
+  client_.run();
+  return false;
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::Disconnect() {
+  //
+}
 // -----------------------------------------------------------------------------
