@@ -1,24 +1,25 @@
 /********************************************************************
-  Copyright 2025, Cong Quyen Knight. All rights reserved
+  Copyright 2026, Cong Quyen Knight. All rights reserved
 
   project:   Aries Games: Elefant Blaster
   author:    quyen19492
   email:     quyen19492@gmail.com
 
-  created:   2025/12/19 06:32
-  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/main_frame.hpp
+  created:   2026/01/03 08:34
+  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/user_manage/tab_users.hpp
 
-  purpose:   Header file for the main window class
+  purpose:   Header file for the user management tab
 *********************************************************************/
 
 
 // -----------------------------------------------------------------------------
-#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_MAIN_FRAME_HPP
-#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_MAIN_FRAME_HPP
+#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_USERS_HPP
+#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_USERS_HPP
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
+#include <wx/grid.h>
 #include <wx/notebook.h>
 #include <wx/wx.h>
 
@@ -28,25 +29,19 @@
 
 // -----------------------------------------------------------------------------
 
-class MainFrame : public wxFrame {
+class TabUsers : public wxPanel {
  public:
-  MainFrame();
-  virtual ~MainFrame();
+  TabUsers(wxWindow* parent);
+  virtual ~TabUsers();
 
  private:
-  void OnExit(wxCommandEvent& event);
-  void OnAbout(wxCommandEvent& event);
+  wxGrid *grid_;
 
  private:
-  wxMenuBar* menu_bar_;
-  wxMenu* menu_files_;
-  wxMenu* menu_help_;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(MainFrame);
+  DISALLOW_COPY_AND_ASSIGN(TabUsers);
 };
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_MAIN_FRAME_HPP
+#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_USERS_HPP
 // -----------------------------------------------------------------------------

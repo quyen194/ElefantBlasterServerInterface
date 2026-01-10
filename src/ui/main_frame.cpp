@@ -14,6 +14,7 @@
 
 // -----------------------------------------------------------------------------
 #include "ui/main_frame.hpp"
+#include "ui/tab_user_manage.hpp"
 // -----------------------------------------------------------------------------
 
 
@@ -36,6 +37,14 @@ MainFrame::MainFrame()
 
   Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
   Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
+
+  auto notebook = new wxNotebook(this, wxID_ANY);
+
+  notebook->AddPage(new TabUserManage(notebook), "User Management");
+
+  auto sizer = new wxBoxSizer(wxVERTICAL);
+  sizer->Add(notebook, 1, wxEXPAND | wxALL);
+  SetSizer(sizer);
 }
 // -----------------------------------------------------------------------------
 
