@@ -18,6 +18,7 @@
 #include "common/events.hpp"
 #include "ui/ui_definitions.hpp"
 #include "control/process_control.hpp"
+#include "process_control.hpp"
 // -----------------------------------------------------------------------------
 
 
@@ -27,8 +28,11 @@ using namespace aries_base::common;
 
 // -----------------------------------------------------------------------------
 
-ProcessControl::ProcessControl() : wxApp(), main_frame_(nullptr) {
-}
+ProcessControl::ProcessControl()
+    : wxApp(),
+      admin_client_(nullptr),
+      login_frame_(nullptr),
+      main_frame_(nullptr) {}
 // -----------------------------------------------------------------------------
 
 ProcessControl::~ProcessControl() {
@@ -48,6 +52,8 @@ bool ProcessControl::OnInit() {
   Bind(EVT_NET_CONNECTED, &ProcessControl::OnNetConnected, this);
   Bind(EVT_NET_RECONNECT, &ProcessControl::OnNetReconnect, this);
   Bind(EVT_UI_LOGIN_SUBMIT, &ProcessControl::OnLoginSubmit, this);
+  Bind(EVT_NET_LOGIN_APPROVED, &ProcessControl::OnLoginApproved, this);
+  Bind(EVT_NET_LOGIN_REJECTED, &ProcessControl::OnLoginRejected, this);
   Bind(EVT_UI_TAB_CHANGED, &ProcessControl::OnUiTabChanged, this);
 
   login_frame_ = new LoginFrame();
@@ -99,9 +105,16 @@ void ProcessControl::OnNetReconnect(wxThreadEvent& event) {
 
 void ProcessControl::OnLoginSubmit(wxThreadEvent& event) {
   LoginSubmitParams params = event.GetPayload<LoginSubmitParams>();
-  while (!admin_client_->IsConnected()) {
+  admin_client_->LoginRequest(params);
+}
+// -----------------------------------------------------------------------------
 
-  }
+void ProcessControl::OnLoginApproved(wxThreadEvent& event) {}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnLoginRejected(wxThreadEvent& event) {
+  std::string reason = event.GetString().ToStdString();
+  login_frame_->OnLoginRejected(reason);
 }
 // -----------------------------------------------------------------------------
 

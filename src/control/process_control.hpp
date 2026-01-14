@@ -45,7 +45,11 @@ class ProcessControl : public wxApp {
  private:
   void OnNetConnected(wxThreadEvent& event);
   void OnNetReconnect(wxThreadEvent& event);
+
   void OnLoginSubmit(wxThreadEvent& event);
+  void OnLoginApproved(wxThreadEvent& event);
+  void OnLoginRejected(wxThreadEvent& event);
+
   void OnUiTabChanged(wxThreadEvent& event);
 
  private:

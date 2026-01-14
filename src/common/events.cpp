@@ -22,6 +22,9 @@ wxDEFINE_EVENT(EVT_NET_CONNECTED, wxThreadEvent);
 wxDEFINE_EVENT(EVT_NET_RECONNECT, wxThreadEvent);
 // -----------------------------------------------------------------------------
 wxDEFINE_EVENT(EVT_UI_LOGIN_SUBMIT, wxThreadEvent);
+wxDEFINE_EVENT(EVT_NET_LOGIN_APPROVED, wxThreadEvent);
+wxDEFINE_EVENT(EVT_NET_LOGIN_REJECTED, wxThreadEvent);
+// -----------------------------------------------------------------------------
 wxDEFINE_EVENT(EVT_UI_TAB_CHANGED, wxThreadEvent);
 wxDEFINE_EVENT(EVT_SERVER_UPDATE, wxThreadEvent);
 // -----------------------------------------------------------------------------

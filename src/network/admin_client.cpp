@@ -14,8 +14,9 @@
 
 // -----------------------------------------------------------------------------
 #include <aries_base/process/thread_pool/thread_pool.hpp>
+#include <aries_base/utils/bytes.hpp>
 
-#include <network/shared/msg_manager.hpp>
+#include <network/shared/admin_protocols/client_protocol.pb.h>
 
 #include "common/events.hpp"
 #include "network/admin_client.hpp"
@@ -23,6 +24,7 @@
 
 
 // -----------------------------------------------------------------------------
+using namespace aries_base;
 using namespace aries_base::process;
 // -----------------------------------------------------------------------------
 using websocketpp::lib::bind;
@@ -37,6 +39,8 @@ typedef asio::ssl::context context;
 AdminClient::AdminClient(MainFrame* main_frame)
     : hdl_(connection_hdl()),
       connected_(false),
+      worker_end_event_(true, false),
+      is_stopping_(false),
       settings_(SettingsManager::Instance()),
       main_frame_(main_frame) {
   logger_ = settings_->GetLogger("network", "AdminClient", true);
@@ -67,6 +71,8 @@ bool AdminClient::LoadConfig() {
 // -----------------------------------------------------------------------------
 
 bool AdminClient::Start() {
+  is_stopping_ = false;
+
   // Set perpetual mode to keep the client running
   client_.start_perpetual();
 
@@ -78,9 +84,11 @@ bool AdminClient::Start() {
 // -----------------------------------------------------------------------------
 
 void AdminClient::Stop() {
+  is_stopping_ = true;
   // Unset perpetual mode so server stop when no connection actived
   client_.stop_perpetual();
   Disconnect();
+  client_.get_io_service().stop();
   worker_end_event_.Wait();
 }
 // -----------------------------------------------------------------------------
@@ -127,6 +135,7 @@ void AdminClient::Worker() {
   } catch (const std::exception& e) {
     logger_->error("AdminServer: Exception in server run loop: {}", e.what());
   }
+  logger_->info("AdminClient: Client run loop stopped");
 }
 // -----------------------------------------------------------------------------
 
@@ -157,12 +166,18 @@ void AdminClient::OnConnected(connection_hdl hdl) {
 void AdminClient::OnDisconnected(connection_hdl hdl) {
   hdl_ = connection_hdl();
   connected_ = false;
-  logger_->info("AdminClient: Disconnected from server. Reconnecting ...");
 
-  auto evt = new wxThreadEvent(EVT_NET_RECONNECT);
-  wxQueueEvent(wxTheApp, evt);
+  if (!is_stopping_) {
+    logger_->info("AdminClient: Disconnected from server. Reconnecting ...");
 
-  Connect();
+    auto evt = new wxThreadEvent(EVT_NET_RECONNECT);
+    wxQueueEvent(wxTheApp, evt);
+
+    Connect();
+  }
+  else {
+    logger_->info("AdminClient: Disconnected from server");
+  }
 }
 // -----------------------------------------------------------------------------
 
@@ -171,7 +186,58 @@ void AdminClient::OnError(connection_hdl hdl) {
 }
 // -----------------------------------------------------------------------------
 
-void AdminClient::OnMessage(connection_hdl hdl, message_ptr msg) {
-  logger_->info("AdminClient: Received message: {}", msg->get_payload());
+void AdminClient::OnMessage(connection_hdl hdl, message_ptr message) {
+  if (message->get_opcode() != websocketpp::frame::opcode::binary)
+    return;
+
+  protocol::ServerMessage msg;
+  if (!msg.ParseFromArray(message->get_payload().data(),
+                          message->get_payload().size())) {
+    // corrupted or incompatible
+    return;
+  }
+
+  switch (msg.body_case()) {
+    case protocol::ClientMessage::kLoginReq: {
+      const admin_auth::LoginRes& res = msg.login_res();
+      OnLoginRes(hdl, res);
+    } break;
+  }
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::LoginRequest(LoginSubmitParams& params) {
+  logger_->info("AdminClient: Send Login Request for {}", params.username);
+
+  protocol::ClientMessage msg;
+  admin_auth::LoginReq* login = msg.mutable_login_req();
+  login->set_username(params.username);
+  login->set_password(params.password);
+
+  utils::bytes buffer(msg.ByteSizeLong());
+  msg.SerializeToArray(buffer.data(), buffer.size());
+
+  websocketpp::lib::error_code ec;
+  client_.send(hdl_,
+               buffer.data(),
+               buffer.size(),
+               websocketpp::frame::opcode::binary,
+               ec);
+
+  return true;
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnLoginRes(connection_hdl hdl,
+                             const admin_auth::LoginRes& res) {
+  if (res.result()) {
+    auto evt = new wxThreadEvent(EVT_NET_LOGIN_APPROVED);
+    wxQueueEvent(wxTheApp, evt);
+    return;
+  }
+
+  auto evt = new wxThreadEvent(EVT_NET_LOGIN_REJECTED);
+  evt->SetString(res.reason());
+  wxQueueEvent(wxTheApp, evt);
 }
 // -----------------------------------------------------------------------------

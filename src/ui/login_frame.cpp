@@ -26,11 +26,12 @@ LoginFrame::LoginFrame()
               "Elefant Blaster Server Interface",
               wxDefaultPosition,
               wxSize(450, 350),
-              wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER & ~wxMAXIMIZE_BOX) {
+              wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER & ~wxMAXIMIZE_BOX),
+      is_closing_(false) {
   auto username_sizer = new wxBoxSizer(wxHORIZONTAL);
   auto lbl_username = new wxStaticText(this, wxID_ANY, "Username");
   lbl_username->SetMinSize(wxSize(90, -1));
-  txt_username_ = new wxTextCtrl(this, wxID_ANY);
+  txt_username_ = new wxTextCtrl(this, wxID_ANY, "admin");
   username_sizer->Add(lbl_username, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
   username_sizer->Add(txt_username_, 1);
 
@@ -39,7 +40,7 @@ LoginFrame::LoginFrame()
   lbl_password->SetMinSize(wxSize(90, -1));
   txt_password_ = new wxTextCtrl(this,
                                  wxID_ANY,
-                                 wxEmptyString,
+                                 "quyen194",
                                  wxDefaultPosition,
                                  wxDefaultSize,
                                  wxTE_PASSWORD);
@@ -50,6 +51,7 @@ LoginFrame::LoginFrame()
   btn_submit_ = new wxButton(this, wxID_OK, "Submit");
   btn_submit_->Bind(wxEVT_BUTTON, &LoginFrame::OnSubmit, this);
   btn_submit_->SetDefault();
+  btn_submit_->Disable();
   btn_exit_ = new wxButton(this, wxID_CANCEL, "Exit");
   btn_exit_->Bind(wxEVT_BUTTON, &LoginFrame::OnExit, this);
   button_sizer->AddStretchSpacer();
@@ -76,11 +78,13 @@ LoginFrame::~LoginFrame() {}
 
 void LoginFrame::SetStatusConnected() {
   status_bar_->SetStatusText("Connected");
+  btn_submit_->Enable();
 }
 // -----------------------------------------------------------------------------
 
 void LoginFrame::SetStatusReconnecting() {
   status_bar_->SetStatusText("Reconnecting ...");
+  btn_submit_->Disable();
 }
 // -----------------------------------------------------------------------------
 
@@ -105,12 +109,26 @@ void LoginFrame::OnSubmit(wxCommandEvent& event) {
 }
 // -----------------------------------------------------------------------------
 
+void LoginFrame::OnLoginRejected(const std::string reason) {
+  wxMessageBox(reason, "Login failed", wxOK | wxICON_ERROR, this);
+
+  btn_submit_->Enable();
+}
+// -----------------------------------------------------------------------------
+
 void LoginFrame::OnExit(wxCommandEvent& event) {
-  Close(true);
+  Close();
 }
 // -----------------------------------------------------------------------------
 
 void LoginFrame::OnClose(wxCloseEvent& event) {
-  Close(true);
+  if (is_closing_) {
+    event.Skip();
+    return;
+  }
+
+  is_closing_ = true;
+
+  Destroy();
 }
 // -----------------------------------------------------------------------------

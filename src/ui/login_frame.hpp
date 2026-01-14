@@ -35,10 +35,12 @@ class LoginFrame : public wxFrame {
   void SetStatusConnected();
   void SetStatusReconnecting();
 
+  void OnLoginRejected(const std::string reason);
+
  private:
- void OnSubmit(wxCommandEvent& event);
- void OnExit(wxCommandEvent& event);
- void OnClose(wxCloseEvent& event);
+  void OnSubmit(wxCommandEvent& event);
+  void OnExit(wxCommandEvent& event);
+  void OnClose(wxCloseEvent& event);
 
  private:
   wxTextCtrl *txt_username_;
@@ -47,6 +49,8 @@ class LoginFrame : public wxFrame {
   wxButton *btn_exit_;
 
   wxStatusBar* status_bar_;
+
+  bool is_closing_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(LoginFrame);

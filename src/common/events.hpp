@@ -33,6 +33,9 @@ struct LoginSubmitParams {
 };
 wxDECLARE_EVENT(EVT_UI_LOGIN_SUBMIT, wxThreadEvent);
 // -----------------------------------------------------------------------------
+wxDECLARE_EVENT(EVT_NET_LOGIN_APPROVED, wxThreadEvent);
+wxDECLARE_EVENT(EVT_NET_LOGIN_REJECTED, wxThreadEvent);
+// -----------------------------------------------------------------------------
 wxDECLARE_EVENT(EVT_UI_TAB_CHANGED, wxThreadEvent);
 wxDECLARE_EVENT(EVT_SERVER_UPDATE, wxThreadEvent);
 // -----------------------------------------------------------------------------

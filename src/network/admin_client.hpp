@@ -30,6 +30,9 @@
 #include <aries_base/definitions/macro.hpp>
 #include <aries_base/process/event/event.hpp>
 
+#include <network/shared/admin_protocols/server_protocol.pb.h>
+
+#include "common/events.hpp"
 #include "common/settings_manager.hpp"
 #include "ui/main_frame.hpp"
 // -----------------------------------------------------------------------------
@@ -60,12 +63,16 @@ class AdminClient {
   void Disconnect();
   bool IsConnected();
 
+  bool LoginRequest(LoginSubmitParams &params);
+
  private:
   context_ptr OnTlsInit(connection_hdl hdl);
   void OnConnected(connection_hdl hdl);
   void OnDisconnected(connection_hdl hdl);
   void OnError(connection_hdl hdl);
-  void OnMessage(connection_hdl hdl, message_ptr msg);
+  void OnMessage(connection_hdl hdl, message_ptr message);
+
+  void OnLoginRes(connection_hdl hdl, const admin_auth::LoginRes& res);
 
  private:
   void Worker();
@@ -78,6 +85,7 @@ class AdminClient {
   bool connected_;
 
   Event worker_end_event_;
+  bool is_stopping_;
 
  private:
   SettingsManager* settings_;
