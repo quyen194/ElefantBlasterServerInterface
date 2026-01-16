@@ -25,6 +25,11 @@ wxDEFINE_EVENT(EVT_UI_LOGIN_SUBMIT, wxThreadEvent);
 wxDEFINE_EVENT(EVT_NET_LOGIN_APPROVED, wxThreadEvent);
 wxDEFINE_EVENT(EVT_NET_LOGIN_REJECTED, wxThreadEvent);
 // -----------------------------------------------------------------------------
+wxDEFINE_EVENT(EVT_UI_MENU_ADMIN_SERVER_SHUTDOWN, wxThreadEvent);
+wxDEFINE_EVENT(EVT_UI_MENU_ADMIN_SERVER_RESTART, wxThreadEvent);
+wxDEFINE_EVENT(EVT_UI_MENU_GAME_SERVER_ACTIVE, wxThreadEvent);
+wxDEFINE_EVENT(EVT_UI_MENU_GAME_SERVER_DEACTIVE, wxThreadEvent);
+wxDEFINE_EVENT(EVT_UI_MENU_GAME_SERVER_DISCONNECT_ALL_CLIENTS, wxThreadEvent);
 wxDEFINE_EVENT(EVT_UI_TAB_CHANGED, wxThreadEvent);
 wxDEFINE_EVENT(EVT_SERVER_UPDATE, wxThreadEvent);
 // -----------------------------------------------------------------------------

@@ -34,9 +34,17 @@ class MainFrame : public wxFrame {
   MainFrame();
   virtual ~MainFrame();
 
+  void SetStatusConnected();
+  void SetStatusReconnecting();
+
  private:
   void OnExit(wxCommandEvent& event);
   void OnAbout(wxCommandEvent& event);
+  void OnAdminServerShutdown(wxCommandEvent& event);
+  void OnAdminServerRestart(wxCommandEvent& event);
+  void OnGameServerActive(wxCommandEvent& event);
+  void OnGameServerDeactive(wxCommandEvent& event);
+  void OnGameServerDisconnectAllClients(wxCommandEvent& event);
 
  private:
   void OnUsersSetGridData(wxThreadEvent& event);
@@ -47,6 +55,8 @@ class MainFrame : public wxFrame {
  private:
   wxMenuBar* menu_bar_;
   wxMenu* menu_files_;
+  wxMenu* menu_admin_server_;
+  wxMenu* menu_game_server_;
   wxMenu* menu_help_;
 
   wxStatusBar* status_bar_;

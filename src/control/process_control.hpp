@@ -50,6 +50,11 @@ class ProcessControl : public wxApp {
   void OnLoginApproved(wxThreadEvent& event);
   void OnLoginRejected(wxThreadEvent& event);
 
+  void OnUiMenuAdminServerShutdown(wxThreadEvent& event);
+  void OnUiMenuAdminServerRestart(wxThreadEvent& event);
+  void OnUiMenuGameServerActive(wxThreadEvent& event);
+  void OnUiMenuGameServerDeactive(wxThreadEvent& event);
+  void OnUiMenuGameServerDisconnectAllClients(wxThreadEvent& event);
   void OnUiTabChanged(wxThreadEvent& event);
 
  private:

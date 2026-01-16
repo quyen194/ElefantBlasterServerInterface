@@ -29,7 +29,9 @@
 
 #include <aries_base/definitions/macro.hpp>
 #include <aries_base/process/event/event.hpp>
+#include <aries_base/utils/bytes.hpp>
 
+#include <network/shared/admin_protocols/client_protocol.pb.h>
 #include <network/shared/admin_protocols/server_protocol.pb.h>
 
 #include "common/events.hpp"
@@ -39,6 +41,7 @@
 
 
 // -----------------------------------------------------------------------------
+using namespace aries_base;
 using namespace aries_base::process;
 // -----------------------------------------------------------------------------
 typedef websocketpp::client<websocketpp::config::asio_tls_client>::message_ptr message_ptr;
@@ -63,7 +66,15 @@ class AdminClient {
   void Disconnect();
   bool IsConnected();
 
+  bool Send(const protocol::ClientMessage &message);
+  bool Send(const utils::bytes &data);
+
   bool LoginRequest(LoginSubmitParams &params);
+  bool ShutDownServer();
+  bool RestartServer();
+  bool ActiveGameServer();
+  bool DeactiveGameServer();
+  bool DisconnectAllGameClients();
 
  private:
   context_ptr OnTlsInit(connection_hdl hdl);
@@ -72,7 +83,7 @@ class AdminClient {
   void OnError(connection_hdl hdl);
   void OnMessage(connection_hdl hdl, message_ptr message);
 
-  void OnLoginRes(connection_hdl hdl, const admin_auth::LoginRes& res);
+  void OnLoginRespond(connection_hdl hdl, const admin_auth::LoginResponse& res);
 
  private:
   void Worker();

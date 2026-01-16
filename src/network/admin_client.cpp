@@ -14,18 +14,12 @@
 
 // -----------------------------------------------------------------------------
 #include <aries_base/process/thread_pool/thread_pool.hpp>
-#include <aries_base/utils/bytes.hpp>
-
-#include <network/shared/admin_protocols/client_protocol.pb.h>
 
 #include "common/events.hpp"
 #include "network/admin_client.hpp"
 // -----------------------------------------------------------------------------
 
 
-// -----------------------------------------------------------------------------
-using namespace aries_base;
-using namespace aries_base::process;
 // -----------------------------------------------------------------------------
 using websocketpp::lib::bind;
 using websocketpp::lib::placeholders::_1;
@@ -172,8 +166,6 @@ void AdminClient::OnDisconnected(connection_hdl hdl) {
 
     auto evt = new wxThreadEvent(EVT_NET_RECONNECT);
     wxQueueEvent(wxTheApp, evt);
-
-    Connect();
   }
   else {
     logger_->info("AdminClient: Disconnected from server");
@@ -183,6 +175,9 @@ void AdminClient::OnDisconnected(connection_hdl hdl) {
 
 void AdminClient::OnError(connection_hdl hdl) {
   logger_->error("AdminClient: Connection error occurred");
+
+  auto evt = new wxThreadEvent(EVT_NET_RECONNECT);
+  wxQueueEvent(wxTheApp, evt);
 }
 // -----------------------------------------------------------------------------
 
@@ -198,11 +193,43 @@ void AdminClient::OnMessage(connection_hdl hdl, message_ptr message) {
   }
 
   switch (msg.body_case()) {
-    case protocol::ClientMessage::kLoginReq: {
-      const admin_auth::LoginRes& res = msg.login_res();
-      OnLoginRes(hdl, res);
+    case protocol::ServerMessage::kLoginResponse: {
+      OnLoginRespond(hdl, msg.login_response());
     } break;
   }
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::Send(const protocol::ClientMessage &message) {
+  if (!IsConnected()) {
+    return false;
+  }
+
+  utils::bytes buffer(message.ByteSizeLong());
+  message.SerializeToArray(buffer.data(), buffer.size());
+
+  return Send(buffer);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::Send(const utils::bytes &data) {
+  if (!IsConnected()) {
+    return false;
+  }
+
+  websocketpp::lib::error_code ec;
+  client_.send(hdl_,  //
+               data.data(),
+               data.size(),
+               websocketpp::frame::opcode::binary,
+               ec);
+
+  if (ec) {
+    logger_->error("AdminClient: Send message failed: {}", ec.message());
+    return false;
+  }
+
+  return true;
 }
 // -----------------------------------------------------------------------------
 
@@ -210,26 +237,16 @@ bool AdminClient::LoginRequest(LoginSubmitParams& params) {
   logger_->info("AdminClient: Send Login Request for {}", params.username);
 
   protocol::ClientMessage msg;
-  admin_auth::LoginReq* login = msg.mutable_login_req();
-  login->set_username(params.username);
-  login->set_password(params.password);
+  auto req = msg.mutable_login_request();
+  req->set_username(params.username);
+  req->set_password(params.password);
 
-  utils::bytes buffer(msg.ByteSizeLong());
-  msg.SerializeToArray(buffer.data(), buffer.size());
-
-  websocketpp::lib::error_code ec;
-  client_.send(hdl_,
-               buffer.data(),
-               buffer.size(),
-               websocketpp::frame::opcode::binary,
-               ec);
-
-  return true;
+  return Send(msg);
 }
 // -----------------------------------------------------------------------------
 
-void AdminClient::OnLoginRes(connection_hdl hdl,
-                             const admin_auth::LoginRes& res) {
+void AdminClient::OnLoginRespond(connection_hdl hdl,
+                                 const admin_auth::LoginResponse& res) {
   if (res.result()) {
     auto evt = new wxThreadEvent(EVT_NET_LOGIN_APPROVED);
     wxQueueEvent(wxTheApp, evt);
@@ -239,5 +256,55 @@ void AdminClient::OnLoginRes(connection_hdl hdl,
   auto evt = new wxThreadEvent(EVT_NET_LOGIN_REJECTED);
   evt->SetString(res.reason());
   wxQueueEvent(wxTheApp, evt);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::ShutDownServer() {
+  logger_->info("AdminClient: Send ShutDown Server Request");
+
+  protocol::ClientMessage msg;
+  msg.mutable_shutdown_server_request();
+
+  return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::RestartServer() {
+  logger_->info("AdminClient: Send Restart Server Request");
+
+  protocol::ClientMessage msg;
+  msg.mutable_restart_server_request();
+
+  return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::ActiveGameServer() {
+  logger_->info("AdminClient: Send Active GameServer Request");
+
+  protocol::ClientMessage msg;
+  msg.mutable_active_game_server_request();
+
+  return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::DeactiveGameServer() {
+  logger_->info("AdminClient: Send Deactive GameServer Request");
+
+  protocol::ClientMessage msg;
+  msg.mutable_deactive_game_server_request();
+
+  return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::DisconnectAllGameClients() {
+  logger_->info("AdminClient: Send Disconnect All Game Clients Request");
+
+  protocol::ClientMessage msg;
+  msg.mutable_disconnect_all_game_clients_request();
+
+  return Send(msg);
 }
 // -----------------------------------------------------------------------------

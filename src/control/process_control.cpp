@@ -14,6 +14,7 @@
 
 // -----------------------------------------------------------------------------
 #include <aries_base/logger/logger_manager.hpp>
+#include <aries_base/process/thread_pool/thread_pool.hpp>
 
 #include "common/events.hpp"
 #include "ui/ui_definitions.hpp"
@@ -24,6 +25,7 @@
 
 // -----------------------------------------------------------------------------
 using namespace aries_base::common;
+using namespace aries_base::process;
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
@@ -49,14 +51,30 @@ bool ProcessControl::OnInit() {
   settings_ = SettingsManager::Instance();
   logger_ = settings_->GetLogger("app", "ProcessControl", true);
 
+  settings_->SetCurrentConfig(SettingsManager::kSettingApp);
+
+  // Thread pool settings from app config (section thread_pool)
+  uint32_t idle_threads = settings_->GetNested<uint32_t>("/thread_pool/idle_threads", 4);
+  uint32_t max_threads = settings_->GetNested<uint32_t>("/thread_pool/max_threads", 16);
+  logger_->info("ProcessControl: Initializing ThreadPool... (idle_threads={}, max_threads={})", idle_threads, max_threads);
+  ThreadPool::CreateInstance(idle_threads, max_threads);
+
   Bind(EVT_NET_CONNECTED, &ProcessControl::OnNetConnected, this);
   Bind(EVT_NET_RECONNECT, &ProcessControl::OnNetReconnect, this);
   Bind(EVT_UI_LOGIN_SUBMIT, &ProcessControl::OnLoginSubmit, this);
   Bind(EVT_NET_LOGIN_APPROVED, &ProcessControl::OnLoginApproved, this);
   Bind(EVT_NET_LOGIN_REJECTED, &ProcessControl::OnLoginRejected, this);
+  Bind(EVT_UI_MENU_ADMIN_SERVER_SHUTDOWN, &ProcessControl::OnUiMenuAdminServerShutdown, this);
+  Bind(EVT_UI_MENU_ADMIN_SERVER_RESTART, &ProcessControl::OnUiMenuAdminServerRestart, this);
+  Bind(EVT_UI_MENU_GAME_SERVER_ACTIVE, &ProcessControl::OnUiMenuGameServerActive, this);
+  Bind(EVT_UI_MENU_GAME_SERVER_DEACTIVE, &ProcessControl::OnUiMenuGameServerDeactive, this);
+  Bind(EVT_UI_MENU_GAME_SERVER_DISCONNECT_ALL_CLIENTS, &ProcessControl::OnUiMenuGameServerDisconnectAllClients, this);
   Bind(EVT_UI_TAB_CHANGED, &ProcessControl::OnUiTabChanged, this);
 
   login_frame_ = new LoginFrame();
+  login_frame_->Bind(wxEVT_DESTROY, [this](wxWindowDestroyEvent&) {
+    login_frame_ = nullptr;
+  });
 
   admin_client_ = new AdminClient(main_frame_);
   admin_client_->Start();
@@ -69,14 +87,6 @@ bool ProcessControl::OnInit() {
 // -----------------------------------------------------------------------------
 
 int ProcessControl::OnExit() {
-  if (login_frame_) {
-    login_frame_ = nullptr;
-  }
-
-  if (main_frame_) {
-    main_frame_ = nullptr;
-  }
-
   admin_client_->Stop();
 
   // Clean up SettingsManager
@@ -90,16 +100,26 @@ int ProcessControl::OnExit() {
 // -----------------------------------------------------------------------------
 
 void ProcessControl::OnNetConnected(wxThreadEvent & event) {
-  if (login_frame_->IsShown()) {
+  if (login_frame_ && login_frame_->IsShown()) {
     login_frame_->SetStatusConnected();
+  }
+  if (main_frame_ && main_frame_->IsShown()) {
+    main_frame_->SetStatusConnected();
   }
 }
 // -----------------------------------------------------------------------------
 
 void ProcessControl::OnNetReconnect(wxThreadEvent& event) {
-  if (login_frame_->IsShown()) {
+  if (login_frame_ && login_frame_->IsShown()) {
     login_frame_->SetStatusReconnecting();
   }
+  if (main_frame_ && main_frame_->IsShown()) {
+    main_frame_->SetStatusReconnecting();
+  }
+
+  ThreadPool::PostDelayedTask([this](){
+    admin_client_->Connect();
+  }, 1000);
 }
 // -----------------------------------------------------------------------------
 
@@ -109,12 +129,49 @@ void ProcessControl::OnLoginSubmit(wxThreadEvent& event) {
 }
 // -----------------------------------------------------------------------------
 
-void ProcessControl::OnLoginApproved(wxThreadEvent& event) {}
+void ProcessControl::OnLoginApproved(wxThreadEvent& event) {
+  if (login_frame_) {
+    login_frame_->Close();
+  }
+
+  main_frame_ = new MainFrame();
+  main_frame_->SetStatusConnected();
+  main_frame_->Bind(wxEVT_DESTROY, [this](wxWindowDestroyEvent&) {
+    main_frame_ = nullptr;
+  });
+  main_frame_->Show(true);
+}
 // -----------------------------------------------------------------------------
 
 void ProcessControl::OnLoginRejected(wxThreadEvent& event) {
   std::string reason = event.GetString().ToStdString();
   login_frame_->OnLoginRejected(reason);
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnUiMenuAdminServerShutdown(wxThreadEvent& event) {
+  admin_client_->ShutDownServer();
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnUiMenuAdminServerRestart(wxThreadEvent& event) {
+  admin_client_->RestartServer();
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnUiMenuGameServerActive(wxThreadEvent& event) {
+  admin_client_->ActiveGameServer();
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnUiMenuGameServerDeactive(wxThreadEvent& event) {
+  admin_client_->DeactiveGameServer();
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnUiMenuGameServerDisconnectAllClients(
+    wxThreadEvent& event) {
+  admin_client_->DisconnectAllGameClients();
 }
 // -----------------------------------------------------------------------------
 
