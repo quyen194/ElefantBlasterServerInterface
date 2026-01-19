@@ -193,8 +193,11 @@ void AdminClient::OnMessage(connection_hdl hdl, message_ptr message) {
   }
 
   switch (msg.body_case()) {
-    case protocol::ServerMessage::kLoginResponse: {
-      OnLoginRespond(hdl, msg.login_response());
+    case protocol::ServerMessage::kLoginSuccessResponse: {
+      OnLoginRespond(hdl, msg.login_success_response());
+    } break;
+    case protocol::ServerMessage::kLoginFailureResponse: {
+      OnLoginRespond(hdl, msg.login_failure_response());
     } break;
   }
 }
@@ -246,13 +249,21 @@ bool AdminClient::LoginRequest(LoginSubmitParams& params) {
 // -----------------------------------------------------------------------------
 
 void AdminClient::OnLoginRespond(connection_hdl hdl,
-                                 const admin_auth::LoginResponse& res) {
-  if (res.result()) {
-    auto evt = new wxThreadEvent(EVT_NET_LOGIN_APPROVED);
-    wxQueueEvent(wxTheApp, evt);
-    return;
+                                 const admin_auth::LoginSuccessResponse& res) {
+  LoginResponseData data;
+  data.display_name = res.display_name();
+  for (int i = 0; i < res.permissions_size(); i++) {
+    data.permissions.insert(res.permissions(i));
   }
 
+  auto evt = new wxThreadEvent(EVT_NET_LOGIN_APPROVED);
+  evt->SetPayload(data);
+  wxQueueEvent(wxTheApp, evt);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnLoginRespond(connection_hdl hdl,
+                                 const admin_auth::LoginFailureResponse& res) {
   auto evt = new wxThreadEvent(EVT_NET_LOGIN_REJECTED);
   evt->SetString(res.reason());
   wxQueueEvent(wxTheApp, evt);

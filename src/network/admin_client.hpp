@@ -83,7 +83,8 @@ class AdminClient {
   void OnError(connection_hdl hdl);
   void OnMessage(connection_hdl hdl, message_ptr message);
 
-  void OnLoginRespond(connection_hdl hdl, const admin_auth::LoginResponse& res);
+  void OnLoginRespond(connection_hdl hdl, const admin_auth::LoginSuccessResponse& res);
+  void OnLoginRespond(connection_hdl hdl, const admin_auth::LoginFailureResponse& res);
 
  private:
   void Worker();

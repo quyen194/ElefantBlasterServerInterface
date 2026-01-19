@@ -19,6 +19,9 @@
 
 
 // -----------------------------------------------------------------------------
+#include <set>
+#include <string>
+
 #include <wx/wx.h>
 // -----------------------------------------------------------------------------
 
@@ -33,6 +36,10 @@ struct LoginSubmitParams {
 };
 wxDECLARE_EVENT(EVT_UI_LOGIN_SUBMIT, wxThreadEvent);
 // -----------------------------------------------------------------------------
+struct LoginResponseData {
+  std::string display_name;
+  std::set<std::string> permissions;
+};
 wxDECLARE_EVENT(EVT_NET_LOGIN_APPROVED, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_LOGIN_REJECTED, wxThreadEvent);
 // -----------------------------------------------------------------------------

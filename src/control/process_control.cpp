@@ -17,9 +17,9 @@
 #include <aries_base/process/thread_pool/thread_pool.hpp>
 
 #include "common/events.hpp"
+#include "entities/profile.hpp"
 #include "ui/ui_definitions.hpp"
 #include "control/process_control.hpp"
-#include "process_control.hpp"
 // -----------------------------------------------------------------------------
 
 
@@ -130,6 +130,12 @@ void ProcessControl::OnLoginSubmit(wxThreadEvent& event) {
 // -----------------------------------------------------------------------------
 
 void ProcessControl::OnLoginApproved(wxThreadEvent& event) {
+  LoginResponseData login_data = event.GetPayload<LoginResponseData>();
+
+  Profile &profile = Profile::Instance();
+  profile.display_name = login_data.display_name;
+  profile.permissions = login_data.permissions;
+
   if (login_frame_) {
     login_frame_->Close();
   }
