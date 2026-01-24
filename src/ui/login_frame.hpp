@@ -32,6 +32,8 @@ class LoginFrame : public wxFrame {
   LoginFrame();
   virtual ~LoginFrame();
 
+  void ShowAndCenter();
+
   void SetStatusConnected();
   void SetStatusReconnecting();
 

@@ -39,8 +39,11 @@ class ProcessControl : public wxApp {
   ProcessControl();
   virtual ~ProcessControl();
 
+ private:
   virtual bool OnInit() override;
   virtual int OnExit() override;
+
+  void Logout();
 
  private:
   void OnNetConnected(wxThreadEvent& event);
@@ -50,6 +53,7 @@ class ProcessControl : public wxApp {
   void OnLoginApproved(wxThreadEvent& event);
   void OnLoginRejected(wxThreadEvent& event);
 
+  void OnUiMenuFileLogout(wxThreadEvent& event);
   void OnUiMenuAdminServerShutdown(wxThreadEvent& event);
   void OnUiMenuAdminServerRestart(wxThreadEvent& event);
   void OnUiMenuGameServerActive(wxThreadEvent& event);

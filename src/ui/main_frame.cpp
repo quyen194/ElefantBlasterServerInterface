@@ -23,7 +23,9 @@
 // -----------------------------------------------------------------------------
 namespace _MenuId {
 enum T {
-  kAdminServer_Shutdown = wxID_HIGHEST + 1,
+  kFile_Logout = wxID_HIGHEST + 1,
+
+  kAdminServer_Shutdown,
   kAdminServer_Restart,
 
   kGameServer_Active,
@@ -35,11 +37,21 @@ typedef _MenuId::T MenuId;
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
+MainFrame* MainFrame::instance_ = nullptr;
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 
 MainFrame::MainFrame()
-    : wxFrame(nullptr, wxID_ANY, "Elefant Blaster Server Interface",
-              wxDefaultPosition, wxSize(800, 600)) {
+    : wxFrame(nullptr,
+              wxID_ANY,
+              "Elefant Blaster Server Interface",
+              wxDefaultPosition,
+              wxDefaultSize) {
+  instance_ = this;
+
   menu_files_ = new wxMenu;
+  menu_files_->Append(MenuId::kFile_Logout, "&Logout");
   menu_files_->Append(wxID_EXIT, "&Exit\tAlt-X", "Exit the application");
 
   menu_admin_server_ = new wxMenu;
@@ -49,8 +61,7 @@ MainFrame::MainFrame()
   menu_game_server_ = new wxMenu;
   menu_game_server_->Append(MenuId::kGameServer_Active, "&Active");
   menu_game_server_->Append(MenuId::kGameServer_Deactive, "&Deactive");
-  menu_game_server_->Append(MenuId::kGameServer_DisconnectAllClients,
-                            "Di&sconnect All Clients");
+  menu_game_server_->Append(MenuId::kGameServer_DisconnectAllClients, "Di&sconnect All Clients");
 
   menu_help_ = new wxMenu;
   menu_help_->Append(wxID_ABOUT, "&About\tF1", "Show about dialog");
@@ -63,22 +74,14 @@ MainFrame::MainFrame()
 
   SetMenuBar(menu_bar_);
 
-  Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
-  Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
-  Bind(wxEVT_MENU, &MainFrame::OnAdminServerShutdown, this,
-       MenuId::kAdminServer_Shutdown);
-  Bind(wxEVT_MENU, &MainFrame::OnAdminServerRestart, this,
-      MenuId::kAdminServer_Restart);
-  Bind(wxEVT_MENU, &MainFrame::OnGameServerActive, this,
-       MenuId::kGameServer_Active);
-  Bind(wxEVT_MENU,
-       &MainFrame::OnGameServerDeactive,
-       this,
-       MenuId::kGameServer_Deactive);
-  Bind(wxEVT_MENU,
-       &MainFrame::OnGameServerDisconnectAllClients,
-       this,
-       MenuId::kGameServer_DisconnectAllClients);
+  Bind(wxEVT_MENU, &MainFrame::OnFileExit, this, wxID_EXIT);
+  Bind(wxEVT_MENU, &MainFrame::OnFileLogout, this, MenuId::kFile_Logout);
+  Bind(wxEVT_MENU, &MainFrame::OnAdminServerShutdown, this, MenuId::kAdminServer_Shutdown);
+  Bind(wxEVT_MENU, &MainFrame::OnAdminServerRestart, this, MenuId::kAdminServer_Restart);
+  Bind(wxEVT_MENU, &MainFrame::OnGameServerActive, this, MenuId::kGameServer_Active);
+  Bind(wxEVT_MENU, &MainFrame::OnGameServerDeactive, this, MenuId::kGameServer_Deactive);
+  Bind(wxEVT_MENU, &MainFrame::OnGameServerDisconnectAllClients, this, MenuId::kGameServer_DisconnectAllClients);
+  Bind(wxEVT_MENU, &MainFrame::OnHelpAbout, this, wxID_ABOUT);
 
   status_bar_ = CreateStatusBar(2);
   int widths[2] = { -1, 200 };
@@ -94,11 +97,24 @@ MainFrame::MainFrame()
   auto sizer = new wxBoxSizer(wxVERTICAL);
   sizer->Add(notebook, 1, wxEXPAND);
   SetSizer(sizer);
+  SetClientSize(1000, 600);
   Layout();
 }
 // -----------------------------------------------------------------------------
 
 MainFrame::~MainFrame() {
+  instance_ = nullptr;
+}
+// -----------------------------------------------------------------------------
+
+MainFrame* MainFrame::Instance() {
+  return instance_;
+}
+// -----------------------------------------------------------------------------
+
+void MainFrame::ShowAndCenter() {
+  Show();
+  Center();
 }
 // -----------------------------------------------------------------------------
 
@@ -112,18 +128,14 @@ void MainFrame::SetStatusReconnecting() {
 }
 // -----------------------------------------------------------------------------
 
-void MainFrame::OnExit(wxCommandEvent& event) {
-  Close(true);
+void MainFrame::OnFileLogout(wxCommandEvent & event) {
+  auto evt = new wxThreadEvent(EVT_UI_MENU_FILE_LOGOUT);
+  wxQueueEvent(wxTheApp, evt);
 }
 // -----------------------------------------------------------------------------
 
-void MainFrame::OnAbout(wxCommandEvent& event) {
-  wxMessageBox(L"Elefant Blaster Server Interface\n"
-               L"Version 1.0\n"
-               L"Copyright © 2025, Cong Quyen Knight.\n"
-               L"All rights reserved.",
-               L"About",
-               wxOK | wxICON_INFORMATION, this);
+void MainFrame::OnFileExit(wxCommandEvent& event) {
+  Close(true);
 }
 // -----------------------------------------------------------------------------
 
@@ -157,5 +169,12 @@ void MainFrame::OnGameServerDisconnectAllClients(wxCommandEvent& event) {
 }
 // -----------------------------------------------------------------------------
 
-void MainFrame::OnUsersSetGridData(wxThreadEvent& event) {}
+void MainFrame::OnHelpAbout(wxCommandEvent& event) {
+  wxMessageBox(L"Elefant Blaster Server Interface\n"
+               L"Version 1.0\n"
+               L"Copyright © 2025, Cong Quyen Knight.\n"
+               L"All rights reserved.",
+               L"About",
+               wxOK | wxICON_INFORMATION, this);
+}
 // -----------------------------------------------------------------------------

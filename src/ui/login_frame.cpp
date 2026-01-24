@@ -13,6 +13,8 @@
 
 
 // -----------------------------------------------------------------------------
+#include <wx/display.h>
+
 #include "common/events.hpp"
 #include "ui/login_frame.hpp"
 // -----------------------------------------------------------------------------
@@ -25,7 +27,7 @@ LoginFrame::LoginFrame()
               wxID_ANY,
               "Elefant Blaster Server Interface",
               wxDefaultPosition,
-              wxSize(450, 350),
+              wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER & ~wxMAXIMIZE_BOX),
       is_closing_(false) {
   auto username_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -69,11 +71,18 @@ LoginFrame::LoginFrame()
   sizer->Add(password_sizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
   sizer->Add(button_sizer, 0, wxEXPAND | wxTOP | wxBOTTOM, 15);
   SetSizer(sizer);
-  Centre();
+  SetClientSize(400, 160);
+  Layout();
 }
 // -----------------------------------------------------------------------------
 
 LoginFrame::~LoginFrame() {}
+// -----------------------------------------------------------------------------
+
+void LoginFrame::ShowAndCenter() {
+  Show();
+  Center();
+}
 // -----------------------------------------------------------------------------
 
 void LoginFrame::SetStatusConnected() {

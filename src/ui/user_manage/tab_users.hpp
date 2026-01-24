@@ -34,9 +34,14 @@ class TabUsers : public wxPanel {
   TabUsers(wxWindow* parent);
   virtual ~TabUsers();
 
+  static TabUsers* Instance();
+
   inline wxGrid* GetGrid() { return grid_; }
 
   void SelectTab();
+
+  void OnUsersListSuccessRespond(wxThreadEvent& event);
+  void OnUsersListFailureRespond(wxThreadEvent& event);
 
  private:
   wxTextCtrl *txt_filter_name_;
@@ -44,6 +49,9 @@ class TabUsers : public wxPanel {
   wxCheckBox *chk_filter_banned_;
   wxButton *btn_filter_apply_;
   wxGrid *grid_;
+
+ private:
+  static TabUsers* instance_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(TabUsers);

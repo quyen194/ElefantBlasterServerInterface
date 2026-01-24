@@ -64,6 +64,7 @@ bool ProcessControl::OnInit() {
   Bind(EVT_UI_LOGIN_SUBMIT, &ProcessControl::OnLoginSubmit, this);
   Bind(EVT_NET_LOGIN_APPROVED, &ProcessControl::OnLoginApproved, this);
   Bind(EVT_NET_LOGIN_REJECTED, &ProcessControl::OnLoginRejected, this);
+  Bind(EVT_UI_MENU_FILE_LOGOUT, &ProcessControl::OnUiMenuFileLogout, this);
   Bind(EVT_UI_MENU_ADMIN_SERVER_SHUTDOWN, &ProcessControl::OnUiMenuAdminServerShutdown, this);
   Bind(EVT_UI_MENU_ADMIN_SERVER_RESTART, &ProcessControl::OnUiMenuAdminServerRestart, this);
   Bind(EVT_UI_MENU_GAME_SERVER_ACTIVE, &ProcessControl::OnUiMenuGameServerActive, this);
@@ -76,11 +77,11 @@ bool ProcessControl::OnInit() {
     login_frame_ = nullptr;
   });
 
-  admin_client_ = new AdminClient(main_frame_);
+  admin_client_ = new AdminClient();
   admin_client_->Start();
   admin_client_->Connect();
 
-  login_frame_->Show(true);
+  login_frame_->ShowAndCenter();
 
   return true;
 }
@@ -99,6 +100,24 @@ int ProcessControl::OnExit() {
 }
 // -----------------------------------------------------------------------------
 
+void ProcessControl::Logout() {
+  login_frame_ = new LoginFrame();
+  login_frame_->Bind(wxEVT_DESTROY, [this](wxWindowDestroyEvent&) {
+    login_frame_ = nullptr;
+  });
+
+  if (main_frame_) {
+    auto main_frame = main_frame_;
+    main_frame_ = nullptr;
+    main_frame->Close();
+  }
+
+  admin_client_->Disconnect();
+
+  login_frame_->ShowAndCenter();
+}
+// -----------------------------------------------------------------------------
+
 void ProcessControl::OnNetConnected(wxThreadEvent & event) {
   if (login_frame_ && login_frame_->IsShown()) {
     login_frame_->SetStatusConnected();
@@ -112,14 +131,28 @@ void ProcessControl::OnNetConnected(wxThreadEvent & event) {
 void ProcessControl::OnNetReconnect(wxThreadEvent& event) {
   if (login_frame_ && login_frame_->IsShown()) {
     login_frame_->SetStatusReconnecting();
-  }
-  if (main_frame_ && main_frame_->IsShown()) {
-    main_frame_->SetStatusReconnecting();
+
+    ThreadPool::PostDelayedTask([this](){
+      admin_client_->Connect();
+    }, 1000);
   }
 
-  ThreadPool::PostDelayedTask([this](){
-    admin_client_->Connect();
-  }, 1000);
+  if (main_frame_ && main_frame_->IsShown()) {
+    wxMessageDialog dlg(main_frame_,
+                        "Would you like to reconnect?",
+                        "Disconnected from server",
+                        wxYES_NO | wxICON_WARNING);
+    dlg.SetYesNoLabels("Reconnect", "Logout");
+    int result = dlg.ShowModal();
+    if (result == wxID_YES) {
+      main_frame_->SetStatusReconnecting();
+      admin_client_->Connect();
+    }
+    else {
+      Logout();
+      admin_client_->Connect();
+    }
+  }
 }
 // -----------------------------------------------------------------------------
 
@@ -132,9 +165,8 @@ void ProcessControl::OnLoginSubmit(wxThreadEvent& event) {
 void ProcessControl::OnLoginApproved(wxThreadEvent& event) {
   LoginResponseData login_data = event.GetPayload<LoginResponseData>();
 
-  Profile &profile = Profile::Instance();
-  profile.display_name = login_data.display_name;
-  profile.permissions = login_data.permissions;
+  AuthUser.display_name = login_data.display_name;
+  AuthUser.permissions = login_data.permissions;
 
   if (login_frame_) {
     login_frame_->Close();
@@ -145,13 +177,18 @@ void ProcessControl::OnLoginApproved(wxThreadEvent& event) {
   main_frame_->Bind(wxEVT_DESTROY, [this](wxWindowDestroyEvent&) {
     main_frame_ = nullptr;
   });
-  main_frame_->Show(true);
+  main_frame_->ShowAndCenter();
 }
 // -----------------------------------------------------------------------------
 
 void ProcessControl::OnLoginRejected(wxThreadEvent& event) {
   std::string reason = event.GetString().ToStdString();
   login_frame_->OnLoginRejected(reason);
+}
+// -----------------------------------------------------------------------------
+
+void ProcessControl::OnUiMenuFileLogout(wxThreadEvent& event) {
+  Logout();
 }
 // -----------------------------------------------------------------------------
 
@@ -184,6 +221,9 @@ void ProcessControl::OnUiMenuGameServerDisconnectAllClients(
 void ProcessControl::OnUiTabChanged(wxThreadEvent& event) {
   switch (event.GetInt()) {
     case TabIndex::kUserManage_Users:
+      if (AuthUser.users_list.empty()) {
+        admin_client_->RequestUsersList({});
+      }
       break;
   }
 }

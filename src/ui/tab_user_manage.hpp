@@ -37,8 +37,6 @@ class TabUserManage : public wxPanel {
   TabUserManage(wxWindow* parent);
   virtual ~TabUserManage();
 
-  inline TabUsers* GetTabUsers() { return tab_users_; }
-
  private:
   void OnNotebookPageChanged(wxBookCtrlEvent& event);
 

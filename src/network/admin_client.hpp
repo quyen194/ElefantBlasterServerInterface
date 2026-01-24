@@ -31,8 +31,7 @@
 #include <aries_base/process/event/event.hpp>
 #include <aries_base/utils/bytes.hpp>
 
-#include <network/shared/admin_protocols/client_protocol.pb.h>
-#include <network/shared/admin_protocols/server_protocol.pb.h>
+#include <network/shared/admin_protocols/protocol.pb.h>
 
 #include "common/events.hpp"
 #include "common/settings_manager.hpp"
@@ -54,7 +53,7 @@ typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 
 class AdminClient {
  public:
-  AdminClient(MainFrame *main_frame);
+  AdminClient();
   virtual ~AdminClient();
 
   bool LoadConfig();
@@ -76,6 +75,8 @@ class AdminClient {
   bool DeactiveGameServer();
   bool DisconnectAllGameClients();
 
+  bool RequestUsersList(const FilterUsersParams &params);
+
  private:
   context_ptr OnTlsInit(connection_hdl hdl);
   void OnConnected(connection_hdl hdl);
@@ -85,6 +86,9 @@ class AdminClient {
 
   void OnLoginRespond(connection_hdl hdl, const admin_auth::LoginSuccessResponse& res);
   void OnLoginRespond(connection_hdl hdl, const admin_auth::LoginFailureResponse& res);
+
+  void OnUsersListRespond(connection_hdl hdl, const users_management::UsersListSuccessResponse& res);
+  void OnUsersListRespond(connection_hdl hdl, const users_management::UsersListFailureResponse& res);
 
  private:
   void Worker();
@@ -101,7 +105,6 @@ class AdminClient {
 
  private:
   SettingsManager* settings_;
-  MainFrame *main_frame_;
   std::shared_ptr<spdlog::logger> logger_;
 
  private:

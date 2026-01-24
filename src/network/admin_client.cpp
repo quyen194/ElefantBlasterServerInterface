@@ -30,13 +30,12 @@ typedef asio::ssl::context context;
 
 // -----------------------------------------------------------------------------
 
-AdminClient::AdminClient(MainFrame* main_frame)
+AdminClient::AdminClient()
     : hdl_(connection_hdl()),
       connected_(false),
       worker_end_event_(true, false),
       is_stopping_(false),
-      settings_(SettingsManager::Instance()),
-      main_frame_(main_frame) {
+      settings_(SettingsManager::Instance()) {
   logger_ = settings_->GetLogger("network", "AdminClient", true);
 
   client_.init_asio();
@@ -108,6 +107,10 @@ bool AdminClient::Connect() {
 // -----------------------------------------------------------------------------
 
 void AdminClient::Disconnect() {
+  if (!connected_) {
+    return;
+  }
+
   websocketpp::lib::error_code ec;
   client_.close(client_.get_con_from_hdl(hdl_), websocketpp::close::status::going_away, "", ec);
   if (ec) {
@@ -198,6 +201,12 @@ void AdminClient::OnMessage(connection_hdl hdl, message_ptr message) {
     } break;
     case protocol::ServerMessage::kLoginFailureResponse: {
       OnLoginRespond(hdl, msg.login_failure_response());
+    } break;
+    case protocol::ServerMessage::kUsersListSuccessResponse: {
+      OnUsersListRespond(hdl, msg.users_list_success_response());
+    } break;
+    case protocol::ServerMessage::kUsersListFailureResponse: {
+      OnUsersListRespond(hdl, msg.users_list_failure_response());
     } break;
   }
 }
@@ -317,5 +326,55 @@ bool AdminClient::DisconnectAllGameClients() {
   msg.mutable_disconnect_all_game_clients_request();
 
   return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::RequestUsersList(const FilterUsersParams& params) {
+  logger_->info("AdminClient: Send Users List Request");
+
+  protocol::ClientMessage msg;
+  auto req = msg.mutable_users_list_request();
+  req->set_filter_name(params.filter_name);
+  req->set_sort_type(params.sort_type);
+  req->set_last_id(params.last_id);
+  req->set_max_count(params.max_count);
+
+  return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnUsersListRespond(
+    connection_hdl hdl, const users_management::UsersListSuccessResponse& res) {
+  UsersListData data;
+
+  for (int i = 0; i < res.users_size(); i++) {
+    User user;
+    auto user_data = res.users(i);
+
+    user.id = user_data.id();
+    user.type = static_cast<UserType>(user_data.type());
+    user.username = user_data.username();
+    user.display_name = user_data.display_name();
+    user.api_token = user_data.api_token();
+    user.last_online_at = user_data.last_online_at();
+    user.is_banned = user_data.is_banned();
+    user.ban_reason = user_data.ban_reason();
+    user.banned_until = user_data.banned_until();
+    user.is_actived = user_data.is_actived();
+
+    data.users.push_back(user);
+  }
+
+  auto evt = new wxThreadEvent(EVT_NET_USERS_LIST_SUCCESS);
+  evt->SetPayload(data);
+  wxQueueEvent(TabUsers::Instance(), evt);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnUsersListRespond(
+    connection_hdl hdl, const users_management::UsersListFailureResponse& res) {
+  auto evt = new wxThreadEvent(EVT_NET_USERS_LIST_FAILURE);
+  evt->SetString(res.reason());
+  wxQueueEvent(TabUsers::Instance(), evt);
 }
 // -----------------------------------------------------------------------------

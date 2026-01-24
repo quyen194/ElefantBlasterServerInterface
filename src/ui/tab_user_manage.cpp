@@ -15,6 +15,9 @@
 // -----------------------------------------------------------------------------
 #include <wx/notebook.h>
 
+#include <entities/permission_list.hpp>
+
+#include "entities/profile.hpp"
 #include "ui/tab_user_manage.hpp"
 // -----------------------------------------------------------------------------
 
@@ -27,15 +30,29 @@ TabUserManage::TabUserManage(wxWindow* parent)
               wxDefaultPosition,
               wxDefaultSize,
               wxTAB_TRAVERSAL) {
+  int key;
+
   auto notebook = new wxNotebook(this, wxID_ANY);
   notebook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
                  &TabUserManage::OnNotebookPageChanged,
                  this);
 
-  tab_users_ = new TabUsers(notebook);
+  if (HasPermission(AuthUser.permissions, permission::user::view)) {
+    tab_users_ = new TabUsers(notebook);
+    key = notebook->AddPage(tab_users_, "Users");
+    tab_ids_[key] = TabIndex::kUserManage_Users;
 
-  int key = notebook->AddPage(tab_users_, "Users");
-  tab_ids_[key] = TabIndex::kUserManage_Users;
+    wxNotebookEvent evt(
+        wxEVT_NOTEBOOK_PAGE_CHANGED,
+        notebook->GetId(),
+        key,      // new page
+        0         // old page
+    );
+    evt.SetEventObject(notebook);
+
+    // Send async (simulate user click)
+    wxPostEvent(notebook->GetEventHandler(), evt);
+  }
 
   auto sizer = new wxBoxSizer(wxVERTICAL);
   sizer->Add(notebook, 1, wxEXPAND);

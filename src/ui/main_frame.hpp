@@ -34,20 +34,22 @@ class MainFrame : public wxFrame {
   MainFrame();
   virtual ~MainFrame();
 
+  static MainFrame* Instance();
+
+  void ShowAndCenter();
+
   void SetStatusConnected();
   void SetStatusReconnecting();
 
  private:
-  void OnExit(wxCommandEvent& event);
-  void OnAbout(wxCommandEvent& event);
+  void OnFileLogout(wxCommandEvent& event);
+  void OnFileExit(wxCommandEvent& event);
+  void OnHelpAbout(wxCommandEvent& event);
   void OnAdminServerShutdown(wxCommandEvent& event);
   void OnAdminServerRestart(wxCommandEvent& event);
   void OnGameServerActive(wxCommandEvent& event);
   void OnGameServerDeactive(wxCommandEvent& event);
   void OnGameServerDisconnectAllClients(wxCommandEvent& event);
-
- private:
-  void OnUsersSetGridData(wxThreadEvent& event);
 
  private:
   TabUserManage* tab_user_manage_;
@@ -60,6 +62,9 @@ class MainFrame : public wxFrame {
   wxMenu* menu_help_;
 
   wxStatusBar* status_bar_;
+
+ private:
+  static MainFrame* instance_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MainFrame);
