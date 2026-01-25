@@ -37,21 +37,26 @@ TabUserManage::TabUserManage(wxWindow* parent)
                  &TabUserManage::OnNotebookPageChanged,
                  this);
 
+  bool selected = false;
+
   if (HasPermission(AuthUser.permissions, permission::user::view)) {
     tab_users_ = new TabUsers(notebook);
     key = notebook->AddPage(tab_users_, "Users");
     tab_ids_[key] = TabIndex::kUserManage_Users;
 
-    wxNotebookEvent evt(
-        wxEVT_NOTEBOOK_PAGE_CHANGED,
-        notebook->GetId(),
-        key,      // new page
-        0         // old page
-    );
-    evt.SetEventObject(notebook);
+    if (!selected) {
+      selected = true;
 
-    // Send async (simulate user click)
-    wxPostEvent(notebook->GetEventHandler(), evt);
+      wxNotebookEvent evt(wxEVT_NOTEBOOK_PAGE_CHANGED,
+                          notebook->GetId(),
+                          key,  // new page
+                          0     // old page
+      );
+      evt.SetEventObject(notebook);
+
+      // Send async (simulate user click)
+      wxPostEvent(notebook->GetEventHandler(), evt);
+    }
   }
 
   auto sizer = new wxBoxSizer(wxVERTICAL);

@@ -22,7 +22,7 @@
 
 
 // -----------------------------------------------------------------------------
-std::vector<std::pair<int, std::string>> kUserGridColumns = {
+static std::vector<std::pair<int, std::string>> kColumns = {
   { 100, "Role" },
   { 200, "Username" },
   { 200, "Display Name" },
@@ -30,7 +30,7 @@ std::vector<std::pair<int, std::string>> kUserGridColumns = {
   { 300, "Last Online" },
   { 300, "API Token" },
   { 200, "Ban Reason" },
-  { 200, "Banned Until "}
+  { 200, "Banned Until "},
 };
 // -----------------------------------------------------------------------------
 
@@ -66,11 +66,11 @@ TabUsers::TabUsers(wxWindow* parent)
 
   grid_ = new wxGrid(this, wxID_ANY);
   // set rows and columns
-  grid_->CreateGrid(0, kUserGridColumns.size());
+  grid_->CreateGrid(0, kColumns.size());
 
-  for (int i = 0; i < kUserGridColumns.size(); ++i) {
-    grid_->SetColSize(i, kUserGridColumns[i].first);
-    grid_->SetColLabelValue(i, kUserGridColumns[i].second);
+  for (int i = 0; i < kColumns.size(); ++i) {
+    grid_->SetColSize(i, kColumns[i].first);
+    grid_->SetColLabelValue(i, kColumns[i].second);
   }
 
   grid_->EnableEditing(false);
@@ -122,20 +122,20 @@ void TabUsers::OnUsersListSuccessRespond(wxThreadEvent& event) {
 
   int number_rows = grid_->GetNumberRows();
   if (number_rows > 0) {
-    if (number_rows != users_data.users.size()) {
+    if (number_rows != users_data.list.size()) {
       grid_->DeleteRows(0, number_rows);
-      grid_->AppendRows(users_data.users.size());
+      grid_->AppendRows(users_data.list.size());
     }
     else {
       grid_->ClearGrid();
     }
   }
   else {
-    grid_->AppendRows(users_data.users.size());
+    grid_->AppendRows(users_data.list.size());
   }
 
-  for (int row = 0; row < users_data.users.size(); row++) {
-    auto &user = users_data.users[row];
+  for (int row = 0; row < users_data.list.size(); row++) {
+    auto &user = users_data.list[row];
     int col = 0;
     grid_->SetCellValue(row, col++, ToString(user.type));
     grid_->SetCellValue(row, col++, user.username);
@@ -159,6 +159,6 @@ void TabUsers::OnUsersListSuccessRespond(wxThreadEvent& event) {
 
 void TabUsers::OnUsersListFailureRespond(wxThreadEvent& event) {
   std::string reason = event.GetString().ToStdString();
-  wxMessageBox(reason, "Get users failed", wxOK | wxICON_ERROR, this);
+  wxMessageBox(reason, "Get users list failed", wxOK | wxICON_ERROR, this);
 }
 // -----------------------------------------------------------------------------

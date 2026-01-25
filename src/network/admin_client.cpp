@@ -376,7 +376,7 @@ bool AdminClient::RequestUsersList(const FilterUsersParams& params) {
 
 void AdminClient::OnUsersListRespond(
     connection_hdl hdl, const users_management::UsersListSuccessResponse& res) {
-  UsersListData data;
+  UsersListData users_data;
 
   for (int i = 0; i < res.users_size(); i++) {
     auto user_data = res.users(i);
@@ -393,11 +393,11 @@ void AdminClient::OnUsersListRespond(
     user.banned_until = user_data.banned_until();
     user.is_actived = user_data.is_actived();
 
-    data.users.push_back(user);
+    users_data.list.push_back(user);
   }
 
   auto evt = new wxThreadEvent(EVT_NET_USERS_LIST_SUCCESS);
-  evt->SetPayload(data);
+  evt->SetPayload(users_data);
   wxQueueEvent(TabUsers::Instance(), evt);
 }
 // -----------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 #include <map>
 
 #include <wx/wx.h>
+#include <wx/notebook.h>
 
 #include <aries_base/definitions/macro.hpp>
 

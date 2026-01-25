@@ -220,11 +220,11 @@ void ProcessControl::OnUiMenuGameServerDisconnectAllClients(
 
 void ProcessControl::OnUiTabChanged(wxThreadEvent& event) {
   switch (event.GetInt()) {
-    case TabIndex::kUserManage_Users:
+    case TabIndex::kUserManage_Users: {
       if (AuthUser.users_list.empty()) {
         admin_client_->RequestUsersList({});
       }
-      break;
+    } break;
   }
 }
 // -----------------------------------------------------------------------------

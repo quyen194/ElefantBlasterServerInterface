@@ -20,7 +20,6 @@
 
 // -----------------------------------------------------------------------------
 #include <wx/grid.h>
-#include <wx/notebook.h>
 #include <wx/wx.h>
 
 #include <aries_base/definitions/macro.hpp>
@@ -35,8 +34,6 @@ class TabUsers : public wxPanel {
   virtual ~TabUsers();
 
   static TabUsers* Instance();
-
-  inline wxGrid* GetGrid() { return grid_; }
 
   void SelectTab();
 
