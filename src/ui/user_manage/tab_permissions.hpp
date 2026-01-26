@@ -5,55 +5,52 @@
   author:    quyen19492
   email:     quyen19492@gmail.com
 
-  created:   2026/01/02 15:40
-  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/tab_user_manage.hpp
+  created:   2026/01/25 07:10
+  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/user_manage/tab_permissions.hpp
 
-  purpose:
+  purpose:   Header file for the user permissions management tab
 *********************************************************************/
 
 
 // -----------------------------------------------------------------------------
-#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
-#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
+#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_PERMISSIONS_HPP
+#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_PERMISSIONS_HPP
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
-#include <map>
-
+#include <wx/grid.h>
 #include <wx/wx.h>
-#include <wx/notebook.h>
 
 #include <aries_base/definitions/macro.hpp>
-
-#include "ui/ui_definitions.hpp"
-#include "ui/user_manage/tab_permissions.hpp"
-#include "ui/user_manage/tab_users.hpp"
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
 
-class TabUserManage : public wxPanel {
+class TabPermissions : public wxPanel {
  public:
-  TabUserManage(wxWindow* parent);
-  virtual ~TabUserManage();
+  TabPermissions(wxWindow* parent);
+  virtual ~TabPermissions();
+
+  static TabPermissions* Instance();
+
+  void SelectTab();
+
+  void OnPermissionsListSuccessRespond(wxThreadEvent& event);
+  void OnPermissionsListFailureRespond(wxThreadEvent& event);
 
  private:
-  void OnNotebookPageChanged(wxBookCtrlEvent& event);
+  wxGrid *grid_;
 
  private:
-  wxNotebook* notebook_;
-  TabUsers* tab_users_;
-  TabPermissions* tab_permissions_;
-
-  std::map<wxPanel*, TabIndex> tab_ids_;
+  static TabPermissions* instance_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(TabUserManage);
+  DISALLOW_COPY_AND_ASSIGN(TabPermissions);
 };
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
+#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_PERMISSIONS_HPP
 // -----------------------------------------------------------------------------

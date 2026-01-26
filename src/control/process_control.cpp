@@ -225,6 +225,12 @@ void ProcessControl::OnUiTabChanged(wxThreadEvent& event) {
         admin_client_->RequestUsersList({});
       }
     } break;
+
+    case TabIndex::kUserManage_Permissions: {
+      if (AuthUser.users_list.empty()) {
+        admin_client_->RequestPermissionsList();
+      }
+    } break;
   }
 }
 // -----------------------------------------------------------------------------

@@ -213,6 +213,12 @@ void AdminClient::OnMessage(connection_hdl hdl, message_ptr message) {
     case protocol::ServerMessage::kUsersListFailureResponse: {
       OnUsersListRespond(hdl, msg.users_list_failure_response());
     } break;
+    case protocol::ServerMessage::kPermissionsListSuccessResponse: {
+      OnPermissionsListRespond(hdl, msg.permissions_list_success_response());
+    } break;
+    case protocol::ServerMessage::kPermissionsListFailureResponse: {
+      OnPermissionsListRespond(hdl, msg.permissions_list_failure_response());
+    } break;
   }
 }
 // -----------------------------------------------------------------------------
@@ -405,5 +411,46 @@ void AdminClient::OnUsersListRespond(
   auto evt = new wxThreadEvent(EVT_NET_USERS_LIST_FAILURE);
   evt->SetString(res.reason());
   wxQueueEvent(TabUsers::Instance(), evt);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::RequestPermissionsList() {
+  logger_->info("AdminClient: Send Permissions List Request");
+
+  protocol::ClientMessage msg;
+  msg.mutable_permissions_list_request();
+
+  return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnPermissionsListRespond(
+    connection_hdl hdl,
+    const users_management::PermissionsListSuccessResponse& res) {
+  PermissionsListData permissions_data;
+
+  for (int i = 0; i < res.permissions_size(); i++) {
+    auto permission_data = res.permissions(i);
+
+    Permission permission;
+    permission.risk = static_cast<RiskLevel>(permission_data.risk_level());
+    permission.name = permission_data.name();
+    permission.desc = permission_data.desc();
+
+    permissions_data.list.push_back(permission);
+  }
+
+  auto evt = new wxThreadEvent(EVT_NET_PERMISSIONS_LIST_SUCCESS);
+  evt->SetPayload(permissions_data);
+  wxQueueEvent(TabPermissions::Instance(), evt);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnPermissionsListRespond(
+    connection_hdl hdl,
+    const users_management::PermissionsListFailureResponse& res) {
+  auto evt = new wxThreadEvent(EVT_NET_PERMISSIONS_LIST_FAILURE);
+  evt->SetString(res.reason());
+  wxQueueEvent(TabPermissions::Instance(), evt);
 }
 // -----------------------------------------------------------------------------

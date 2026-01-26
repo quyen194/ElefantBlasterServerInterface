@@ -41,6 +41,15 @@ TabUserManage::TabUserManage(wxWindow* parent)
     tab_ids_[tab_users_] = TabIndex::kUserManage_Users;
   }
 
+  if (HasPermission(AuthUser.permissions, permission::self::all) ||
+      HasPermission(AuthUser.permissions, permission::self::view_high_risk) ||
+      HasPermission(AuthUser.permissions, permission::self::view_medium_risk) ||
+      HasPermission(AuthUser.permissions, permission::self::view_low_risk)) {
+    tab_permissions_ = new TabPermissions(notebook_);
+    notebook_->AddPage(tab_permissions_, "Permissions");
+    tab_ids_[tab_permissions_] = TabIndex::kUserManage_Permissions;
+  }
+
   auto sizer = new wxBoxSizer(wxVERTICAL);
   sizer->Add(notebook_, 1, wxEXPAND);
   SetSizer(sizer);
@@ -68,6 +77,10 @@ void TabUserManage::OnNotebookPageChanged(wxBookCtrlEvent& event) {
     switch (tab_ids_[panel]) {
       case TabIndex::kUserManage_Users:
         tab_users_->SelectTab();
+        break;
+
+      case TabIndex::kUserManage_Permissions:
+        tab_permissions_->SelectTab();
         break;
 
       default:

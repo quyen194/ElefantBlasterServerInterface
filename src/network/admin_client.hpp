@@ -78,6 +78,7 @@ class AdminClient {
   bool DisconnectAllGameClients();
 
   bool RequestUsersList(const FilterUsersParams &params);
+  bool RequestPermissionsList();
 
  private:
   context_ptr OnTlsInit(connection_hdl hdl);
@@ -93,6 +94,9 @@ class AdminClient {
 
   void OnUsersListRespond(connection_hdl hdl, const users_management::UsersListSuccessResponse& res);
   void OnUsersListRespond(connection_hdl hdl, const users_management::UsersListFailureResponse& res);
+
+  void OnPermissionsListRespond(connection_hdl hdl, const users_management::PermissionsListSuccessResponse& res);
+  void OnPermissionsListRespond(connection_hdl hdl, const users_management::PermissionsListFailureResponse& res);
 
  private:
   void Worker();

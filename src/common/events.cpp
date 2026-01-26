@@ -37,3 +37,7 @@ wxDEFINE_EVENT(EVT_UI_REQUEST_USERS_LIST, wxThreadEvent);
 wxDEFINE_EVENT(EVT_NET_USERS_LIST_SUCCESS, wxThreadEvent);
 wxDEFINE_EVENT(EVT_NET_USERS_LIST_FAILURE, wxThreadEvent);
 // -----------------------------------------------------------------------------
+wxDEFINE_EVENT(EVT_UI_REQUEST_PERMISSIONS_LIST, wxThreadEvent);
+wxDEFINE_EVENT(EVT_NET_PERMISSIONS_LIST_SUCCESS, wxThreadEvent);
+wxDEFINE_EVENT(EVT_NET_PERMISSIONS_LIST_FAILURE, wxThreadEvent);
+// -----------------------------------------------------------------------------

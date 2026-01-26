@@ -23,6 +23,7 @@
 namespace _TabIndex {
   enum T {
     kUserManage_Users,
+    kUserManage_Permissions,
   };
 }
 typedef _TabIndex::T TabIndex;
