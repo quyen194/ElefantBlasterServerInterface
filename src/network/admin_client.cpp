@@ -16,6 +16,7 @@
 #include <aries_base/process/thread_pool/thread_pool.hpp>
 
 #include "common/events.hpp"
+#include "entities/profile.hpp"
 #include "network/admin_client.hpp"
 // -----------------------------------------------------------------------------
 
@@ -376,8 +377,6 @@ bool AdminClient::RequestUsersList(const FilterUsersParams& params) {
 
 void AdminClient::OnUsersListRespond(
     connection_hdl hdl, const users_management::UsersListSuccessResponse& res) {
-  UsersListData users_data;
-
   for (int i = 0; i < res.users_size(); i++) {
     auto user_data = res.users(i);
 
@@ -393,11 +392,10 @@ void AdminClient::OnUsersListRespond(
     user.banned_until = user_data.banned_until();
     user.is_actived = user_data.is_actived();
 
-    users_data.list.push_back(user);
+    AuthUser.users_list.push_back(user);
   }
 
   auto evt = new wxThreadEvent(EVT_NET_USERS_LIST_SUCCESS);
-  evt->SetPayload(users_data);
   wxQueueEvent(TabUsers::Instance(), evt);
 }
 // -----------------------------------------------------------------------------

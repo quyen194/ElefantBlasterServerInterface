@@ -63,10 +63,6 @@ struct FilterUsersParams {
   std::uint64_t max_count = 0;
 };
 wxDECLARE_EVENT(EVT_UI_REQUEST_USERS_LIST, wxThreadEvent);
-
-struct UsersListData {
-  std::vector<User> list;
-};
 wxDECLARE_EVENT(EVT_NET_USERS_LIST_SUCCESS, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_USERS_LIST_FAILURE, wxThreadEvent);
 // -----------------------------------------------------------------------------

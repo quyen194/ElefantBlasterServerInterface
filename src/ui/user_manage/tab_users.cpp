@@ -16,6 +16,7 @@
 #include <aries_base/utils/times.hpp>
 
 #include "common/events.hpp"
+#include "entities/profile.hpp"
 #include "ui/ui_definitions.hpp"
 #include "ui/user_manage/tab_users.hpp"
 // -----------------------------------------------------------------------------
@@ -103,8 +104,6 @@ void TabUsers::SelectTab() {
 // -----------------------------------------------------------------------------
 
 void TabUsers::OnUsersListSuccessRespond(wxThreadEvent& event) {
-  UsersListData users_data = event.GetPayload<UsersListData>();
-
   auto fnGetStatus = [](User &user) -> std::string {
     if (!user.is_actived) {
       return "Inactive";
@@ -122,20 +121,20 @@ void TabUsers::OnUsersListSuccessRespond(wxThreadEvent& event) {
 
   int number_rows = grid_->GetNumberRows();
   if (number_rows > 0) {
-    if (number_rows != users_data.list.size()) {
+    if (number_rows != AuthUser.users_list.size()) {
       grid_->DeleteRows(0, number_rows);
-      grid_->AppendRows(users_data.list.size());
+      grid_->AppendRows(AuthUser.users_list.size());
     }
     else {
       grid_->ClearGrid();
     }
   }
   else {
-    grid_->AppendRows(users_data.list.size());
+    grid_->AppendRows(AuthUser.users_list.size());
   }
 
-  for (int row = 0; row < users_data.list.size(); row++) {
-    auto &user = users_data.list[row];
+  for (int row = 0; row < AuthUser.users_list.size(); row++) {
+    auto &user = AuthUser.users_list[row];
     int col = 0;
     grid_->SetCellValue(row, col++, ToString(user.type));
     grid_->SetCellValue(row, col++, user.username);
