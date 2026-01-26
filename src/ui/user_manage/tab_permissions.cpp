@@ -14,6 +14,7 @@
 
 // -----------------------------------------------------------------------------
 #include "common/events.hpp"
+#include "entities/profile.hpp"
 #include "ui/ui_definitions.hpp"
 #include "ui/user_manage/tab_permissions.hpp"
 // -----------------------------------------------------------------------------
@@ -76,26 +77,24 @@ void TabPermissions::SelectTab() {
 // -----------------------------------------------------------------------------
 
 void TabPermissions::OnPermissionsListSuccessRespond(wxThreadEvent& event) {
-  PermissionsListData permissions_data = event.GetPayload<PermissionsListData>();
-
   grid_->BeginBatch();
 
   int number_rows = grid_->GetNumberRows();
   if (number_rows > 0) {
-    if (number_rows != permissions_data.list.size()) {
+    if (number_rows != AuthUser.permissions_list.size()) {
       grid_->DeleteRows(0, number_rows);
-      grid_->AppendRows(permissions_data.list.size());
+      grid_->AppendRows(AuthUser.permissions_list.size());
     }
     else {
       grid_->ClearGrid();
     }
   }
   else {
-    grid_->AppendRows(permissions_data.list.size());
+    grid_->AppendRows(AuthUser.permissions_list.size());
   }
 
-  for (int row = 0; row < permissions_data.list.size(); row++) {
-    auto &permission = permissions_data.list[row];
+  for (int row = 0; row < AuthUser.permissions_list.size(); row++) {
+    auto &permission = AuthUser.permissions_list[row];
     int col = 0;
     grid_->SetCellValue(row, col++, ToString(permission.risk));
     grid_->SetCellValue(row, col++, std::string(permission.name));
@@ -103,24 +102,24 @@ void TabPermissions::OnPermissionsListSuccessRespond(wxThreadEvent& event) {
 
     switch (permission.risk) {
       case RiskLevel::kHigh: {
-        auto highRiskAttr = new wxGridCellAttr();
-        highRiskAttr->SetBackgroundColour(wxColour(253, 236, 234));
-        highRiskAttr->SetTextColour(wxColour(127, 29, 29));
-        grid_->SetRowAttr(row, highRiskAttr);
+        auto rowAttr = new wxGridCellAttr();
+        rowAttr->SetBackgroundColour(wxColour(253, 236, 234));
+        rowAttr->SetTextColour(wxColour(127, 29, 29));
+        grid_->SetRowAttr(row, rowAttr);
       } break;
 
       case RiskLevel::kMedium: {
-        auto mediumRiskAttr = new wxGridCellAttr();
-        mediumRiskAttr->SetBackgroundColour(wxColour(255, 244, 229));
-        mediumRiskAttr->SetTextColour(wxColour(146, 64, 14));
-        grid_->SetRowAttr(row, mediumRiskAttr);
+        auto rowAttr = new wxGridCellAttr();
+        rowAttr->SetBackgroundColour(wxColour(255, 244, 229));
+        rowAttr->SetTextColour(wxColour(146, 64, 14));
+        grid_->SetRowAttr(row, rowAttr);
       } break;
 
       case RiskLevel::kLow: {
-        auto lowRiskAttr = new wxGridCellAttr();
-        lowRiskAttr->SetBackgroundColour(wxColour(237, 247, 237));
-        lowRiskAttr->SetTextColour(wxColour(27, 94, 32));
-        grid_->SetRowAttr(row, lowRiskAttr);
+        auto rowAttr = new wxGridCellAttr();
+        rowAttr->SetBackgroundColour(wxColour(237, 247, 237));
+        rowAttr->SetTextColour(wxColour(27, 94, 32));
+        grid_->SetRowAttr(row, rowAttr);
       } break;
     }
   }

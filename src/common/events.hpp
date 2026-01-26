@@ -68,10 +68,6 @@ wxDECLARE_EVENT(EVT_NET_USERS_LIST_SUCCESS, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_USERS_LIST_FAILURE, wxThreadEvent);
 // -----------------------------------------------------------------------------
 wxDECLARE_EVENT(EVT_UI_REQUEST_PERMISSIONS_LIST, wxThreadEvent);
-
-struct PermissionsListData {
-  std::vector<Permission> list;
-};
 wxDECLARE_EVENT(EVT_NET_PERMISSIONS_LIST_SUCCESS, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_PERMISSIONS_LIST_FAILURE, wxThreadEvent);
 // -----------------------------------------------------------------------------

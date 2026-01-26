@@ -427,8 +427,6 @@ bool AdminClient::RequestPermissionsList() {
 void AdminClient::OnPermissionsListRespond(
     connection_hdl hdl,
     const users_management::PermissionsListSuccessResponse& res) {
-  PermissionsListData permissions_data;
-
   for (int i = 0; i < res.permissions_size(); i++) {
     auto permission_data = res.permissions(i);
 
@@ -437,11 +435,10 @@ void AdminClient::OnPermissionsListRespond(
     permission.name = permission_data.name();
     permission.desc = permission_data.desc();
 
-    permissions_data.list.push_back(permission);
+    AuthUser.permissions_list.push_back(permission);
   }
 
   auto evt = new wxThreadEvent(EVT_NET_PERMISSIONS_LIST_SUCCESS);
-  evt->SetPayload(permissions_data);
   wxQueueEvent(TabPermissions::Instance(), evt);
 }
 // -----------------------------------------------------------------------------

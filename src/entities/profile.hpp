@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <entities/user.hpp>
+#include <entities/permission.hpp>
 // -----------------------------------------------------------------------------
 
 
@@ -42,6 +43,7 @@ struct Profile {
   std::set<std::string> permissions;
 
   std::vector<User> users_list;
+  std::vector<Permission> permissions_list;
 };
 // -----------------------------------------------------------------------------
 
