@@ -26,6 +26,7 @@
 
 #include <wx/wx.h>
 
+#include <entities/permission.hpp>
 #include <entities/user.hpp>
 #include <storage/shared/db_definitions.hpp>
 // -----------------------------------------------------------------------------
@@ -65,8 +66,6 @@ struct FilterUsersParams {
 wxDECLARE_EVENT(EVT_UI_REQUEST_USERS_LIST, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_USERS_LIST_SUCCESS, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_USERS_LIST_FAILURE, wxThreadEvent);
-// -----------------------------------------------------------------------------
-wxDECLARE_EVENT(EVT_SERVER_UPDATE, wxThreadEvent);
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------

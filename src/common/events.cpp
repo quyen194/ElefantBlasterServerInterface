@@ -37,5 +37,3 @@ wxDEFINE_EVENT(EVT_UI_REQUEST_USERS_LIST, wxThreadEvent);
 wxDEFINE_EVENT(EVT_NET_USERS_LIST_SUCCESS, wxThreadEvent);
 wxDEFINE_EVENT(EVT_NET_USERS_LIST_FAILURE, wxThreadEvent);
 // -----------------------------------------------------------------------------
-wxDEFINE_EVENT(EVT_SERVER_UPDATE, wxThreadEvent);
-// -----------------------------------------------------------------------------
