@@ -69,6 +69,8 @@ class AdminClient {
   bool Send(const utils::bytes &data);
 
   bool LoginRequest(LoginSubmitParams &params);
+  bool Logout();
+
   bool ShutDownServer();
   bool RestartServer();
   bool ActiveGameServer();
@@ -83,6 +85,8 @@ class AdminClient {
   void OnDisconnected(connection_hdl hdl);
   void OnError(connection_hdl hdl);
   void OnMessage(connection_hdl hdl, message_ptr message);
+
+  bool Login();
 
   void OnLoginRespond(connection_hdl hdl, const admin_auth::LoginSuccessResponse& res);
   void OnLoginRespond(connection_hdl hdl, const admin_auth::LoginFailureResponse& res);
@@ -99,6 +103,10 @@ class AdminClient {
 
   connection_hdl hdl_;
   bool connected_;
+
+  bool authorized_;
+  std::string username_;
+  std::string password_;
 
   Event worker_end_event_;
   bool is_stopping_;

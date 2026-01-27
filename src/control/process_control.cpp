@@ -112,7 +112,7 @@ void ProcessControl::Logout() {
     main_frame->Close();
   }
 
-  admin_client_->Disconnect();
+  admin_client_->Logout();
 
   login_frame_->ShowAndCenter();
 }
