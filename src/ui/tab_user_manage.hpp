@@ -42,9 +42,10 @@ class TabUserManage : public wxPanel {
   void OnNotebookPageChanged(wxBookCtrlEvent& event);
 
  private:
-  TabUsers *tab_users_;
+  wxNotebook* notebook_;
+  TabUsers* tab_users_;
 
-  std::map<int, TabIndex> tab_ids_;
+  std::map<wxPanel*, TabIndex> tab_ids_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(TabUserManage);

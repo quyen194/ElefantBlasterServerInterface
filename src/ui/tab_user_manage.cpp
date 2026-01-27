@@ -30,38 +30,30 @@ TabUserManage::TabUserManage(wxWindow* parent)
               wxDefaultPosition,
               wxDefaultSize,
               wxTAB_TRAVERSAL) {
-  int key;
-
-  auto notebook = new wxNotebook(this, wxID_ANY);
-  notebook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
+  notebook_ = new wxNotebook(this, wxID_ANY);
+  notebook_->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
                  &TabUserManage::OnNotebookPageChanged,
                  this);
 
-  bool selected = false;
-
   if (HasPermission(AuthUser.permissions, permission::user::view)) {
-    tab_users_ = new TabUsers(notebook);
-    key = notebook->AddPage(tab_users_, "Users");
-    tab_ids_[key] = TabIndex::kUserManage_Users;
-
-    if (!selected) {
-      selected = true;
-
-      wxNotebookEvent evt(wxEVT_NOTEBOOK_PAGE_CHANGED,
-                          notebook->GetId(),
-                          key,  // new page
-                          0     // old page
-      );
-      evt.SetEventObject(notebook);
-
-      // Send async (simulate user click)
-      wxPostEvent(notebook->GetEventHandler(), evt);
-    }
+    tab_users_ = new TabUsers(notebook_);
+    notebook_->AddPage(tab_users_, "Users");
+    tab_ids_[tab_users_] = TabIndex::kUserManage_Users;
   }
 
   auto sizer = new wxBoxSizer(wxVERTICAL);
-  sizer->Add(notebook, 1, wxEXPAND);
+  sizer->Add(notebook_, 1, wxEXPAND);
   SetSizer(sizer);
+
+  wxNotebookEvent evt(wxEVT_NOTEBOOK_PAGE_CHANGED,
+                      notebook_->GetId(),
+                      0,           // new page = first tab
+                      wxNOT_FOUND  // old page
+  );
+  evt.SetEventObject(notebook_);
+
+  // Send async (simulate user click)
+  wxPostEvent(notebook_->GetEventHandler(), evt);
 }
 // -----------------------------------------------------------------------------
 
@@ -71,13 +63,16 @@ TabUserManage::~TabUserManage() {}
 void TabUserManage::OnNotebookPageChanged(wxBookCtrlEvent& event) {
   int newPage = event.GetSelection();
 
-  switch (tab_ids_[newPage]) {
-    case TabIndex::kUserManage_Users:
-      tab_users_->SelectTab();
-      break;
+  if (newPage != wxNOT_FOUND) {
+    auto panel = dynamic_cast<wxPanel*>(notebook_->GetPage(newPage));
+    switch (tab_ids_[panel]) {
+      case TabIndex::kUserManage_Users:
+        tab_users_->SelectTab();
+        break;
 
-    default:
-      return;
+      default:
+        return;
+    }
   }
 
   // Handle page change if needed

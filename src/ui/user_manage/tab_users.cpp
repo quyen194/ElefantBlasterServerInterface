@@ -25,13 +25,13 @@
 // -----------------------------------------------------------------------------
 static std::vector<std::pair<int, std::string>> kColumns = {
   { 100, "Role" },
-  { 200, "Username" },
+  { 150, "Username" },
   { 200, "Display Name" },
-  { 100, "Status" },
-  { 300, "Last Online" },
-  { 300, "API Token" },
+  {  90, "Status" },
+  { 160, "Last Online" },
+  { 200, "API Token" },
   { 200, "Ban Reason" },
-  { 200, "Banned Until "},
+  { 160, "Banned Until "},
 };
 // -----------------------------------------------------------------------------
 
@@ -153,6 +153,7 @@ void TabUsers::OnUsersListSuccessRespond(wxThreadEvent& event) {
   }
 
   grid_->EndBatch();
+  grid_->Refresh();
 }
 // -----------------------------------------------------------------------------
 
