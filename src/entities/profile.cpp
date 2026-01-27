@@ -24,3 +24,13 @@ Profile& Profile::Instance() {
   return instance;
 }
 // -----------------------------------------------------------------------------
+
+void Profile::Clear() {
+  authorized = false;
+  username.clear();
+  password.clear();
+  display_name.clear();
+  permissions.clear();
+  users_list.clear();
+}
+// -----------------------------------------------------------------------------

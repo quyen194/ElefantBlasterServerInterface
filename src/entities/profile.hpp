@@ -32,8 +32,12 @@
 struct Profile {
  public:
   static Profile& Instance();
+  void Clear();
 
  public:
+  bool authorized;
+  std::string username;
+  std::string password;
   std::string display_name;
   std::set<std::string> permissions;
 

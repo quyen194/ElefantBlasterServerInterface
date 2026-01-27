@@ -33,7 +33,6 @@ typedef asio::ssl::context context;
 AdminClient::AdminClient()
     : hdl_(connection_hdl()),
       connected_(false),
-      authorized_(false),
       worker_end_event_(true, false),
       is_stopping_(false),
       settings_(SettingsManager::Instance()) {
@@ -159,7 +158,7 @@ void AdminClient::OnConnected(connection_hdl hdl) {
   auto evt = new wxThreadEvent(EVT_NET_CONNECTED);
   wxQueueEvent(wxTheApp, evt);
 
-  if (authorized_) {
+  if (AuthUser.authorized) {
     Login();
   }
 }
@@ -253,32 +252,30 @@ bool AdminClient::Send(const utils::bytes &data) {
 bool AdminClient::LoginRequest(LoginSubmitParams& params) {
   logger_->info("AdminClient: Send Login Request for {}", params.username);
 
-  authorized_ = false;
-  username_ = params.username;
-  password_ = params.password;
+  AuthUser.authorized = false;
+  AuthUser.username = params.username;
+  AuthUser.password = params.password;
 
   return Login();
 }
 // -----------------------------------------------------------------------------
 
 bool AdminClient::Login() {
-  if (username_.empty() || password_.empty()) {
+  if (AuthUser.username.empty() || AuthUser.password.empty()) {
     return false;
   }
 
   protocol::ClientMessage msg;
   auto req = msg.mutable_login_request();
-  req->set_username(username_);
-  req->set_password(password_);
+  req->set_username(AuthUser.username);
+  req->set_password(AuthUser.password);
 
   return Send(msg);
 }
 // -----------------------------------------------------------------------------
 
 bool AdminClient::Logout() {
-  authorized_ = false;
-  username_.clear();
-  password_.clear();
+  AuthUser.Clear();
 
   Disconnect();
 
@@ -294,7 +291,7 @@ void AdminClient::OnLoginRespond(connection_hdl hdl,
     data.permissions.insert(res.permissions(i));
   }
 
-  authorized_ = true;
+  AuthUser.authorized = true;
 
   auto evt = new wxThreadEvent(EVT_NET_LOGIN_APPROVED);
   evt->SetPayload(data);
@@ -304,8 +301,8 @@ void AdminClient::OnLoginRespond(connection_hdl hdl,
 
 void AdminClient::OnLoginRespond(connection_hdl hdl,
                                  const admin_auth::LoginFailureResponse& res) {
-  username_.clear();
-  password_.clear();
+  AuthUser.username.clear();
+  AuthUser.password.clear();
 
   auto evt = new wxThreadEvent(EVT_NET_LOGIN_REJECTED);
   evt->SetString(res.reason());

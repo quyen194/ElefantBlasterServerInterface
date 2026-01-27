@@ -104,10 +104,6 @@ class AdminClient {
   connection_hdl hdl_;
   bool connected_;
 
-  bool authorized_;
-  std::string username_;
-  std::string password_;
-
   Event worker_end_event_;
   bool is_stopping_;
 
