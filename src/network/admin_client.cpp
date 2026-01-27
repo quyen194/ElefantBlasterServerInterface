@@ -213,6 +213,12 @@ void AdminClient::OnMessage(connection_hdl hdl, message_ptr message) {
     case protocol::ServerMessage::kUsersListFailureResponse: {
       OnUsersListRespond(hdl, msg.users_list_failure_response());
     } break;
+    case protocol::ServerMessage::kRolesListSuccessResponse: {
+      OnRolesListRespond(hdl, msg.roles_list_success_response());
+    } break;
+    case protocol::ServerMessage::kRolesListFailureResponse: {
+      OnRolesListRespond(hdl, msg.roles_list_failure_response());
+    } break;
     case protocol::ServerMessage::kPermissionsListSuccessResponse: {
       OnPermissionsListRespond(hdl, msg.permissions_list_success_response());
     } break;
@@ -411,6 +417,45 @@ void AdminClient::OnUsersListRespond(
   auto evt = new wxThreadEvent(EVT_NET_USERS_LIST_FAILURE);
   evt->SetString(res.reason());
   wxQueueEvent(TabUsers::Instance(), evt);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::RequestRolesList() {
+  logger_->info("AdminClient: Send Roles List Request");
+
+  protocol::ClientMessage msg;
+  msg.mutable_roles_list_request();
+
+  return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnRolesListRespond(
+    connection_hdl hdl, const users_management::RolesListSuccessResponse& res) {
+  for (int i = 0; i < res.roles_size(); i++) {
+    auto role_data = res.roles(i);
+
+    Role role;
+    role.id = role_data.id();
+    role.is_system = role_data.is_system();
+    role.name = role_data.name();
+    role.display_name = role_data.display_name();
+    role.desc = role_data.desc();
+    role.is_actived = role_data.is_actived();
+
+    AuthUser.roles_list.push_back(role);
+  }
+
+  auto evt = new wxThreadEvent(EVT_NET_ROLES_LIST_SUCCESS);
+  wxQueueEvent(TabRoles::Instance(), evt);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnRolesListRespond(
+    connection_hdl hdl, const users_management::RolesListFailureResponse& res) {
+  auto evt = new wxThreadEvent(EVT_NET_ROLES_LIST_FAILURE);
+  evt->SetString(res.reason());
+  wxQueueEvent(TabRoles::Instance(), evt);
 }
 // -----------------------------------------------------------------------------
 

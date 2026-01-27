@@ -41,6 +41,13 @@ TabUserManage::TabUserManage(wxWindow* parent)
     tab_ids_[tab_users_] = TabIndex::kUserManage_Users;
   }
 
+  if (HasPermission(AuthUser.permissions, permission::role::all) ||
+      HasPermission(AuthUser.permissions, permission::role::view)) {
+    tab_roles_ = new TabRoles(notebook_);
+    notebook_->AddPage(tab_roles_, "Roles");
+    tab_ids_[tab_roles_] = TabIndex::kUserManage_Roles;
+  }
+
   if (HasPermission(AuthUser.permissions, permission::self::all) ||
       HasPermission(AuthUser.permissions, permission::self::view_high_risk) ||
       HasPermission(AuthUser.permissions, permission::self::view_medium_risk) ||
@@ -77,6 +84,10 @@ void TabUserManage::OnNotebookPageChanged(wxBookCtrlEvent& event) {
     switch (tab_ids_[panel]) {
       case TabIndex::kUserManage_Users:
         tab_users_->SelectTab();
+        break;
+
+      case TabIndex::kUserManage_Roles:
+        tab_roles_->SelectTab();
         break;
 
       case TabIndex::kUserManage_Permissions:
