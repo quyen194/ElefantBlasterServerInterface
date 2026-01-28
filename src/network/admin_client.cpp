@@ -213,6 +213,12 @@ void AdminClient::OnMessage(connection_hdl hdl, message_ptr message) {
     case protocol::ServerMessage::kUsersListFailureResponse: {
       OnUsersListRespond(hdl, msg.users_list_failure_response());
     } break;
+    case protocol::ServerMessage::kGroupsListSuccessResponse: {
+      OnGroupsListRespond(hdl, msg.groups_list_success_response());
+    } break;
+    case protocol::ServerMessage::kGroupsListFailureResponse: {
+      OnGroupsListRespond(hdl, msg.groups_list_failure_response());
+    } break;
     case protocol::ServerMessage::kRolesListSuccessResponse: {
       OnRolesListRespond(hdl, msg.roles_list_success_response());
     } break;
@@ -417,6 +423,45 @@ void AdminClient::OnUsersListRespond(
   auto evt = new wxThreadEvent(EVT_NET_USERS_LIST_FAILURE);
   evt->SetString(res.reason());
   wxQueueEvent(TabUsers::Instance(), evt);
+}
+// -----------------------------------------------------------------------------
+
+bool AdminClient::RequestGroupsList() {
+  logger_->info("AdminClient: Send Groups List Request");
+
+  protocol::ClientMessage msg;
+  msg.mutable_groups_list_request();
+
+  return Send(msg);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnGroupsListRespond(
+    connection_hdl hdl, const users_management::GroupsListSuccessResponse& res) {
+  for (int i = 0; i < res.groups_size(); i++) {
+    auto group_data = res.groups(i);
+
+    Group group;
+    group.id = group_data.id();
+    group.is_system = group_data.is_system();
+    group.name = group_data.name();
+    group.display_name = group_data.display_name();
+    group.desc = group_data.desc();
+    group.is_actived = group_data.is_actived();
+
+    AuthUser.groups_list.push_back(group);
+  }
+
+  auto evt = new wxThreadEvent(EVT_NET_GROUPS_LIST_SUCCESS);
+  wxQueueEvent(TabGroups::Instance(), evt);
+}
+// -----------------------------------------------------------------------------
+
+void AdminClient::OnGroupsListRespond(
+    connection_hdl hdl, const users_management::GroupsListFailureResponse& res) {
+  auto evt = new wxThreadEvent(EVT_NET_GROUPS_LIST_FAILURE);
+  evt->SetString(res.reason());
+  wxQueueEvent(TabGroups::Instance(), evt);
 }
 // -----------------------------------------------------------------------------
 

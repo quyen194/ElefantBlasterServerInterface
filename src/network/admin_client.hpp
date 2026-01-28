@@ -78,6 +78,7 @@ class AdminClient {
   bool DisconnectAllGameClients();
 
   bool RequestUsersList(const FilterUsersParams &params);
+  bool RequestGroupsList();
   bool RequestRolesList();
   bool RequestPermissionsList();
 
@@ -95,6 +96,9 @@ class AdminClient {
 
   void OnUsersListRespond(connection_hdl hdl, const users_management::UsersListSuccessResponse& res);
   void OnUsersListRespond(connection_hdl hdl, const users_management::UsersListFailureResponse& res);
+
+  void OnGroupsListRespond(connection_hdl hdl, const users_management::GroupsListSuccessResponse& res);
+  void OnGroupsListRespond(connection_hdl hdl, const users_management::GroupsListFailureResponse& res);
 
   void OnRolesListRespond(connection_hdl hdl, const users_management::RolesListSuccessResponse& res);
   void OnRolesListRespond(connection_hdl hdl, const users_management::RolesListFailureResponse& res);

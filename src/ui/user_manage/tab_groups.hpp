@@ -5,59 +5,52 @@
   author:    quyen19492
   email:     quyen19492@gmail.com
 
-  created:   2026/01/02 15:40
-  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/tab_user_manage.hpp
+  created:   2026/01/28 07:08
+  filename:  ElefantBlaster/ElefantBlasterServerInterface/ui/user_manage/tab_roles.hpp
 
-  purpose:
+  purpose:   Header file for the user roles management tab
 *********************************************************************/
 
 
 // -----------------------------------------------------------------------------
-#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
-#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
+#ifndef ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_GROUPS_HPP
+#define ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_GROUPS_HPP
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
-#include <map>
-
+#include <wx/grid.h>
 #include <wx/wx.h>
-#include <wx/notebook.h>
 
 #include <aries_base/definitions/macro.hpp>
-
-#include "ui/ui_definitions.hpp"
-#include "ui/user_manage/tab_permissions.hpp"
-#include "ui/user_manage/tab_groups.hpp"
-#include "ui/user_manage/tab_roles.hpp"
-#include "ui/user_manage/tab_users.hpp"
 // -----------------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
 
-class TabUserManage : public wxPanel {
+class TabGroups : public wxPanel {
  public:
-  TabUserManage(wxWindow* parent);
-  virtual ~TabUserManage();
+  TabGroups(wxWindow* parent);
+  virtual ~TabGroups();
+
+  static TabGroups* Instance();
+
+  void SelectTab();
+
+  void OnGroupsListSuccessRespond(wxThreadEvent& event);
+  void OnGroupsListFailureRespond(wxThreadEvent& event);
 
  private:
-  void OnNotebookPageChanged(wxBookCtrlEvent& event);
+  wxGrid *grid_;
 
  private:
-  wxNotebook* notebook_;
-  TabUsers* tab_users_;
-  TabGroups* tab_groups_;
-  TabRoles* tab_roles_;
-  TabPermissions* tab_permissions_;
-
-  std::map<wxPanel*, TabIndex> tab_ids_;
+  static TabGroups* instance_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(TabUserManage);
+  DISALLOW_COPY_AND_ASSIGN(TabGroups);
 };
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_TAB_USER_MANAGE_HPP
+#endif  // ELEFANT_BLASTER_SERVER_INTERFACE_UI_USER_MANAGE_TAB_GROUPS_HPP
 // -----------------------------------------------------------------------------

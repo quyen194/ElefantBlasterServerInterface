@@ -226,6 +226,12 @@ void ProcessControl::OnUiTabChanged(wxThreadEvent& event) {
       }
     } break;
 
+    case TabIndex::kUserManage_Groups: {
+      if (AuthUser.groups_list.empty()) {
+        admin_client_->RequestGroupsList();
+      }
+    } break;
+
     case TabIndex::kUserManage_Roles: {
       if (AuthUser.roles_list.empty()) {
         admin_client_->RequestRolesList();

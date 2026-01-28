@@ -32,6 +32,7 @@ void Profile::Clear() {
   display_name.clear();
   permissions.clear();
   users_list.clear();
+  groups_list.clear();
   roles_list.clear();
   permissions_list.clear();
 }

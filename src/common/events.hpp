@@ -67,6 +67,10 @@ wxDECLARE_EVENT(EVT_UI_REQUEST_USERS_LIST, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_USERS_LIST_SUCCESS, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_USERS_LIST_FAILURE, wxThreadEvent);
 // -----------------------------------------------------------------------------
+wxDECLARE_EVENT(EVT_UI_REQUEST_GROUPS_LIST, wxThreadEvent);
+wxDECLARE_EVENT(EVT_NET_GROUPS_LIST_SUCCESS, wxThreadEvent);
+wxDECLARE_EVENT(EVT_NET_GROUPS_LIST_FAILURE, wxThreadEvent);
+// -----------------------------------------------------------------------------
 wxDECLARE_EVENT(EVT_UI_REQUEST_ROLES_LIST, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_ROLES_LIST_SUCCESS, wxThreadEvent);
 wxDECLARE_EVENT(EVT_NET_ROLES_LIST_FAILURE, wxThreadEvent);
