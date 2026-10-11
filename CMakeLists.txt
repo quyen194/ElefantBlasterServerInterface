@@ -36,19 +36,21 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-file(GLOB_RECURSE SOURCE_FILES
-    "${CMAKE_CURRENT_LIST_DIR}/*.h"
-    "${CMAKE_CURRENT_LIST_DIR}/*.c"
-    "${CMAKE_CURRENT_LIST_DIR}/*.hpp"
-    "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/*.hh"
-    "${CMAKE_CURRENT_LIST_DIR}/*.cc"
+# Add your headers to the target
+file(GLOB_RECURSE HEADER_FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hh"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
 )
+target_sources(${EXECUTABLE_NAME} PRIVATE ${HEADER_FILES})
 
 # Add your sources to the target
-target_sources(${EXECUTABLE_NAME} PRIVATE
-    ${SOURCE_FILES}
+file(GLOB_RECURSE SOURCE_FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
+target_sources(${EXECUTABLE_NAME} PRIVATE ${SOURCE_FILES})
 
 # What is iosLaunchScreen.storyboard? This file describes what Apple's mobile platforms
 # should show the user while the application is starting up. If you don't include one,
