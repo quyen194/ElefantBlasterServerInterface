@@ -41,22 +41,19 @@ TabUserManage::TabUserManage(wxWindow* parent)
     tab_ids_[tab_users_] = TabIndex::kUserManage_Users;
   }
 
-  if (HasPermission(AuthUser.permissions, permission::usergroup::all) ||
-      HasPermission(AuthUser.permissions, permission::usergroup::view)) {
+  if (HasPermission(AuthUser.permissions, permission::usergroup::view)) {
     tab_groups_ = new TabGroups(notebook_);
     notebook_->AddPage(tab_groups_, "Groups");
     tab_ids_[tab_groups_] = TabIndex::kUserManage_Groups;
   }
 
-  if (HasPermission(AuthUser.permissions, permission::role::all) ||
-      HasPermission(AuthUser.permissions, permission::role::view)) {
+  if (HasPermission(AuthUser.permissions, permission::role::view)) {
     tab_roles_ = new TabRoles(notebook_);
     notebook_->AddPage(tab_roles_, "Roles");
     tab_ids_[tab_roles_] = TabIndex::kUserManage_Roles;
   }
 
-  if (HasPermission(AuthUser.permissions, permission::self::all) ||
-      HasPermission(AuthUser.permissions, permission::self::view_high_risk) ||
+  if (HasPermission(AuthUser.permissions, permission::self::view_high_risk) ||
       HasPermission(AuthUser.permissions, permission::self::view_medium_risk) ||
       HasPermission(AuthUser.permissions, permission::self::view_low_risk)) {
     tab_permissions_ = new TabPermissions(notebook_);
