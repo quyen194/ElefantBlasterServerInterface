@@ -31,6 +31,10 @@ set(EXECUTABLE_NAME ${PROJECT_NAME})
 # Create an executable
 add_executable(${EXECUTABLE_NAME})
 
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES
+    WIN32_EXECUTABLE TRUE
+)
+
 # Add include directories
 target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
